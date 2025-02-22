@@ -1,0 +1,25 @@
+{
+    "typescript.tsdk": "node_modules\\typescript\\lib",
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescriptreact]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "cSpell.words": [
+        "umijs"
+    ],
+    // "[vue]": {
+    //     "editor.defaultFormatter": "Vue.volar"
+    // },  //配置 vue 文件的格式化,这个项目用不上
+    // "editor.formatOnSaveMode": "modifications", // 只格式化修改的部分，和别人协作开发时为了不污染提交，可以开启这个，自己开发强制都按照pretter的格式
+    "editor.formatOnSave": true,
+    "editor.fontFamily": "Maple Mono, 霞鹜文楷",
+    "marscode.chatLanguage": "cn",
+}
