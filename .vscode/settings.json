@@ -13,7 +13,8 @@
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
     "cSpell.words": [
-        "umijs"
+        "umijs",
+        "videojs"
     ],
     // "[vue]": {
     //     "editor.defaultFormatter": "Vue.volar"

@@ -5,17 +5,7 @@ export default defineConfig({
     { path: '/video/:id', component: 'video' },
   ],
   npmClient: 'pnpm',
-  plugins: [
-    '@umijs/plugins/dist/tailwindcss',
-    '@umijs/plugins/dist/request',
-    '@umijs/plugins/dist/antd',
-  ],
+  plugins: ['@umijs/plugins/dist/tailwindcss', '@umijs/plugins/dist/request'],
   tailwindcss: {},
   request: {},
-  antd: {
-    style: 'less', // 或 'css'，根据项目配置
-    // theme: {
-    //   '@primary-color': '#1DA57A',
-    // },
-  },
 })

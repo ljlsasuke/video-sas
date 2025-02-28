@@ -1,4 +1,5 @@
-import type { VideoItem } from '@/type'
+import type { LoginResT } from '@/type'
+import type { VideoItem } from '@/type/model'
 import { defineMock } from 'umi'
 // 生成假数据的函数
 function generateFakeVideoData(nums: number = 20) {
@@ -26,5 +27,26 @@ export default defineMock({
     const { count } = req.query
     const responseBody = generateFakeVideoData(Number(count))
     res.send(responseBody)
+  },
+  'POST  /api/login': (req, res) => {
+    const { username, password } = req.body
+    if (username === 'admin' && password === 'admin') {
+      res.send({
+        code: 200,
+        message: '登录成功',
+        data: {
+          token: 'admin-faker-token',
+          userInfo: {
+            username: '是里里大王',
+            avatar: '/fakerAvatar.png',
+          },
+        },
+      } as LoginResT)
+    } else {
+      res.send({
+        code: 400,
+        message: '用户名或密码错误',
+      })
+    }
   },
 })

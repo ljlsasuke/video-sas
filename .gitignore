@@ -8,5 +8,7 @@
 /dist
 .swc
 .DS_Store
+# 存的一些测试视频
+/public/test
 
 
