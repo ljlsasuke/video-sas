@@ -1,5 +1,5 @@
 import type { UserInfo } from '@/type/model'
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useMemo, useState } from 'react'
 
 interface AuthContextType {
   isLoggedIn: boolean
@@ -23,7 +23,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const setAuthState = (token: string, info: UserInfo) => {
     setToken(token)
     setUserInfo(info)
-    console.log(info, '@@@@@@@@@@@@@@@@@@')
     localStorage.setItem('token', token)
     localStorage.setItem('userInfo', JSON.stringify(info))
   }
@@ -33,19 +32,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('userInfo')
     localStorage.removeItem('token')
   }
-
+  const contextValue = useMemo<AuthContextType>(
+    () => ({
+      isLoggedIn: !!token,
+      userInfo,
+      token,
+      setAuthState,
+      clearAuthState,
+    }),
+    [token, userInfo],
+  )
   return (
-    <AuthContext.Provider
-      value={{
-        isLoggedIn: !!token,
-        userInfo,
-        token,
-        setAuthState,
-        clearAuthState,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   )
 }
 

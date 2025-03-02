@@ -1,6 +1,5 @@
 import { useAuth } from '@/contexts/AuthContext'
-import pubsub from '@/utils/pubsub'
-import { useEffect, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { history } from 'umi'
 import Login from './Login'
 import message from './Message'
@@ -9,58 +8,32 @@ export default function TopNav() {
     id: number
     name: string
   }
-  const [list, setList] = useState<ListItem[]>([])
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
   const { isLoggedIn } = useAuth()
-  useEffect(() => {
-    // 根据登录状态设置不同的列表
-    if (isLoggedIn) {
-      setList([
-        {
-          id: 7,
-          name: '稍后再看waring',
-        },
-        {
-          id: 4,
-          name: '动态error',
-        },
-        {
-          id: 9,
-          name: '里里大王info',
-        },
-      ])
-    } else {
-      setList([
-        {
-          id: 0,
-          name: '登录',
-        },
-      ])
-    }
-
-    const subKey = pubsub.subscribe('LOGIN_SUCCESS', () => {
-      setList([
-        {
-          id: 7,
-          name: '稍后再看waring',
-        },
-        {
-          id: 4,
-          name: '动态error',
-        },
-        {
-          id: 9,
-          name: '里里大王info',
-        },
-      ])
-    })
-
-    return () => {
-      pubsub.unsubscribe(subKey)
-    }
-  }, [isLoggedIn]) // 添加 isLoggedIn 作为依赖
+  const list = useMemo<ListItem[]>(() => {
+    return isLoggedIn
+      ? [
+          {
+            id: 7,
+            name: '稍后再看',
+          },
+          {
+            id: 4,
+            name: '动态',
+          },
+          {
+            id: 9,
+            name: '里里大王',
+          },
+        ]
+      : [
+          {
+            id: 0,
+            name: '登录',
+          },
+        ]
+  }, [isLoggedIn])
   const handlerESC = (event: KeyboardEvent) => {
-    console.log('event', event)
     if (event.code === 'Escape') {
       handleCloseModal()
     }
@@ -82,12 +55,10 @@ export default function TopNav() {
   }
   const handleLoginClick = () => {
     setIsLoginModalOpen(true)
-    console.log('注册事件')
     window.addEventListener('keyup', handlerESC)
   }
   const handleCloseModal = () => {
     setIsLoginModalOpen(false)
-    console.log('注销事件')
     window.removeEventListener('keyup', handlerESC)
   }
   return (

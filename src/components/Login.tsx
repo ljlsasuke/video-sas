@@ -1,7 +1,6 @@
 import message from '@/components/Message'
 import { useAuth } from '@/contexts/AuthContext'
 import { login } from '@/services/api'
-import pubsub from '@/utils/pubsub'
 import { useState } from 'react'
 interface LoginProps {
   onClose: () => void
@@ -19,7 +18,6 @@ export default function Login({ onClose }: LoginProps) {
         if (code !== 200) return Promise.reject(messageInfo)
         setAuthState(data.token, data.userInfo)
         message.success(messageInfo)
-        pubsub.publish('LOGIN_SUCCESS')
       })
       .catch((err) => {
         message.error(err)

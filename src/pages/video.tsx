@@ -12,6 +12,9 @@ export default function video() {
       const player = videojs(videoRef.current, {
         controls: true,
         fluid: false,
+        userActions: {
+          hotkeys: true,
+        },
       })
 
       return () => player.dispose()
@@ -54,7 +57,7 @@ export default function video() {
               className="video-js vjs-default-skin h-full w-full"
               controls
             >
-              <source src="/test/video1.mp4" type="video/mp4" />
+              <source src={`/test/video${param.id}.mp4`} type="video/mp4" />
             </video>
           </div>
         </div>

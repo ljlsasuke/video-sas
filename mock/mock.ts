@@ -1,6 +1,8 @@
 import type { LoginResT } from '@/type'
 import type { VideoItem } from '@/type/model'
 import { defineMock } from 'umi'
+const randomNum = (min: number, max: number) =>
+  Math.floor(Math.random() * (max - min + 1)) + min //包含最大最小值
 // 生成假数据的函数
 function generateFakeVideoData(nums: number = 20) {
   const fakeData: VideoItem[] = []
@@ -12,7 +14,7 @@ function generateFakeVideoData(nums: number = 20) {
         username: `user${i}`,
         avatar: '/fakerAvatar.png',
       },
-      url: `/video/${i}`,
+      url: `/video/${randomNum(1, 6)}`,
       cover: '/fakerImg.jpg',
       playCount: Math.floor(Math.random() * 10000),
       uploadTime: new Date().toISOString(),
