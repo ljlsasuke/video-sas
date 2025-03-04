@@ -73,11 +73,17 @@ export default function TopNav() {
           className="h-full w-full scale-75 fill-primary transition duration-200 ease-in-out hover:scale-100"
         ></SasIcon>
       </div>
-      <div className="mx-4 h-10 w-1/3 flex-shrink-0">
+      <div className="relative mx-4 h-10 w-1/3 flex-shrink-0">
         <input
           type="text"
-          className="border-1 h-10 w-full rounded-full border border-gray-300 px-3 py-1 ring-opacity-50 transition duration-200 ease-in-out hover:border-gray-400 focus:rounded-2xl focus:border-primary focus:outline-none focus:ring focus:ring-primary"
+          className="my-input-shadow h-10 w-full rounded-full px-3 py-1 ring-opacity-50 transition duration-200 ease-in-out hover:border-gray-400 focus:rounded-2xl focus:border-primary focus:outline-none focus:ring focus:ring-primary"
         />
+        <SasIcon
+          name="search"
+          width={24}
+          height={24}
+          className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
+        ></SasIcon>
       </div>
       <ul className="flex">
         {list.map((item) => {
