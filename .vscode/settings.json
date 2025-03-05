@@ -23,4 +23,6 @@
     "editor.formatOnSave": true,
     "editor.fontFamily": "Maple Mono, 霞鹜文楷",
     "marscode.chatLanguage": "cn",
+    "git.autofetchPeriod": 1000,
+    "git.autofetch": true,
 }

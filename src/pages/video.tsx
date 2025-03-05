@@ -1,13 +1,35 @@
 import SasIcon from '@/components/SasIcon'
 import { useEffect, useRef } from 'react'
-import { useParams } from 'umi'
+import { Link, useParams } from 'umi'
 import videojs from 'video.js'
 import 'video.js/dist/video-js.css'
 
 export default function video() {
   const param = useParams()
   const videoRef = useRef(null)
-
+  type Tag = {
+    id: number
+    name: string
+  }
+  let tags: Tag[] = []
+  tags = [
+    {
+      id: 1,
+      name: 'charmmy',
+    },
+    {
+      id: 2,
+      name: '梦境',
+    },
+    {
+      id: 3,
+      name: '茶米',
+    },
+    {
+      id: 4,
+      name: '夏日桃子',
+    },
+  ]
   useEffect(() => {
     if (videoRef.current) {
       const player = videojs(videoRef.current, {
@@ -48,13 +70,14 @@ export default function video() {
           </div>
         </div>
         <div>
-          {['charmmy', '梦境', '茶米', '夏日桃子'].map((tag) => (
-            <a
-              key={tag}
+          {tags.map((tag) => (
+            <Link
+              key={tag.id}
+              to={`/search?tag=${tag.name}`}
               className="mr-1 inline-block cursor-pointer rounded-lg border border-gray-300 px-2 py-1 text-base font-normal text-primary hover:bg-primary hover:text-white"
             >
-              {tag}
-            </a>
+              {tag.name}
+            </Link>
           ))}
         </div>
       </div>

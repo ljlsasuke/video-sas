@@ -61,6 +61,7 @@ export default function Login({ onClose }: LoginProps) {
           <input
             value={password}
             onChange={(e) => setPassword((e.target as HTMLInputElement).value)}
+            onKeyUp={(e) => e.key === 'Enter' && onLogin()}
             type="password"
             placeholder="请输入密码"
             className="mb-4 h-10 w-full rounded-md border border-gray-300 px-3 outline-none transition-all focus:border-primary focus:ring-1 focus:ring-primary"
