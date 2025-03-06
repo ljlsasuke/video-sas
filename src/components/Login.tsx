@@ -2,6 +2,7 @@ import message from '@/components/Message'
 import { useAuth } from '@/contexts/AuthContext'
 import { login } from '@/services/api'
 import { useState } from 'react'
+import SasIcon from './SasIcon'
 interface LoginProps {
   onClose: () => void
 }
@@ -43,12 +44,9 @@ export default function Login({ onClose }: LoginProps) {
         <div className="flex flex-1 flex-col px-8 py-8 md:px-12">
           <div className="mb-8 flex items-center justify-between">
             <h2 className="text-xl font-medium">密码登录</h2>
-            <button
-              className="text-gray-400 hover:text-gray-600"
-              onClick={onClose}
-            >
-              ✕
-            </button>
+            <div onClick={onClose} className="cursor-pointer">
+              <SasIcon name="close" width={24} height={24}></SasIcon>
+            </div>
           </div>
 
           <input
