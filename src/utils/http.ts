@@ -1,6 +1,5 @@
 import type { RequestConfig } from 'umi'
-import { request as umiRequest } from 'umi'
-
+import { AxiosError, request as umiRequest } from 'umi'
 type RequestMethod = 'GET' | 'POST' | 'PUT' | 'DELETE'
 interface RequestOptions {
   params?: any
@@ -12,10 +11,10 @@ interface RequestOptions {
 const requestConfig: RequestConfig = {
   timeout: 10000,
   // 配置全局请求前缀（根据环境切换）
-  baseURL: '/api',
-  // process.env.NODE_ENV === 'development'
-  //   ? '/api'
-  //   : 'http://your-prod-domain.com',
+  baseURL:
+    process.env.UMI_APP_ENV === 'development'
+      ? process.env.UMI_APP_API_URL
+      : 'http://your-prod-domain.com',
   requestInterceptors: [
     (url, options) => {
       const token = localStorage.getItem('token')
@@ -29,16 +28,41 @@ const requestConfig: RequestConfig = {
     },
   ],
   responseInterceptors: [
-    (response) => {
-      // 进行错误处理和核心数据返回
-      // const { status } = response
-      // switch (status) {
-      //   case 200:
-      //     message.success('请求成功')
-      //     break
-      // }
-      return response // axios的拦截器这里是返回response.data,不过最后请求都可以直接拿到响应体
-    },
+    [
+      (response) => {
+        return response
+      },
+      (error: Error) => {
+        try {
+          const { status, data } = (error as AxiosError<any, any>).response!
+          // 返回一个被拒绝的Promise，但确保传递的是字符串错误消息
+          // 而不是整个错误对象
+          let errorMessage = error.message
+          if (data && typeof data.message === 'string') {
+            errorMessage = data.message
+          }
+
+          switch (status) {
+            case 400:
+              errorMessage = '请求参数错误: ' + errorMessage
+              break
+            case 404:
+              errorMessage = '资源不存在: ' + errorMessage
+              break
+            case 500:
+              errorMessage = '服务器错误: ' + errorMessage
+              break
+          }
+          // 返回字符串错误消息而不是整个错误对象
+          return Promise.reject(errorMessage)
+        } catch (catchError) {
+          // 处理response可能为undefined的情况
+          console.error('请求错误:', error)
+          // 同样返回字符串而不是对象
+          return Promise.reject('网络连接异常')
+        }
+      },
+    ],
   ],
 }
 

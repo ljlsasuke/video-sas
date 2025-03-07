@@ -1,3 +1,4 @@
+import message from '@/components/Message'
 import { useAuth } from '@/contexts/AuthContext'
 import { getVideoList } from '@/services/api'
 import type { VideoItem } from '@/type/model'
@@ -26,9 +27,13 @@ export default function HomePage() {
   const [activeIndex, setActiveIndex] = useState<number>(0)
   const { isLoggedIn } = useAuth()
   useEffect(() => {
-    getVideoList<VideoItem[]>().then((res) => {
-      setVideoList(res)
-    })
+    getVideoList<VideoItem[]>()
+      .then((res) => {
+        setVideoList(res)
+      })
+      .catch((err) => {
+        message.error(err)
+      })
   }, [activeIndex, isLoggedIn])
   return (
     <div className="flex flex-col">

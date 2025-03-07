@@ -39,6 +39,7 @@ export default defineMock({
         data: {
           token: 'admin-faker-token',
           userInfo: {
+            id: 1,
             username: '是里里大王',
             avatar: '/fakerAvatar.png',
           },

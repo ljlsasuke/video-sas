@@ -17,10 +17,10 @@ export default function Login({ onClose }: LoginProps) {
     })
       .then(({ code, message: messageInfo, data }) => {
         if (code !== 200) return Promise.reject(messageInfo)
-        setAuthState(data.token, data.userInfo)
-        message.success(messageInfo)
+        setAuthState(data)
+        message.success('登录成功')
       })
-      .catch((err) => {
+      .catch((err: string) => {
         message.error(err)
       })
       .finally(() => {

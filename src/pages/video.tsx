@@ -1,4 +1,5 @@
 import SasIcon from '@/components/SasIcon'
+import type { Tag } from '@/type/model'
 import { useEffect, useRef } from 'react'
 import { Link, useParams } from 'umi'
 import videojs from 'video.js'
@@ -7,10 +8,6 @@ import 'video.js/dist/video-js.css'
 export default function video() {
   const param = useParams()
   const videoRef = useRef(null)
-  type Tag = {
-    id: number
-    name: string
-  }
   let tags: Tag[] = []
   tags = [
     {
