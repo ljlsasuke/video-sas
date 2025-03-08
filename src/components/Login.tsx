@@ -1,6 +1,6 @@
 import message from '@/components/Message'
 import { useAuth } from '@/contexts/AuthContext'
-import { login } from '@/services/api'
+import { login } from '@/services'
 import { useState } from 'react'
 import SasIcon from './SasIcon'
 interface LoginProps {
@@ -15,8 +15,7 @@ export default function Login({ onClose }: LoginProps) {
       username,
       password,
     })
-      .then(({ code, message: messageInfo, data }) => {
-        if (code !== 200) return Promise.reject(messageInfo)
+      .then(({ data }) => {
         setAuthState(data)
         message.success('登录成功')
       })

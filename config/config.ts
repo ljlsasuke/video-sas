@@ -4,10 +4,11 @@ import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
 export default defineConfig({
   routes: [
     { path: '/', component: 'home' },
-    { path: '/video/:id', component: 'video' },
+    { path: '/video/:bv', component: 'video' },
     { path: '/search', component: 'search' },
   ],
   npmClient: 'pnpm',
+  favicons: ['/logo.svg'],
   plugins: ['@umijs/plugins/dist/tailwindcss', '@umijs/plugins/dist/request'],
   tailwindcss: {
     timeout: 10000, // 10s 算启动超时
