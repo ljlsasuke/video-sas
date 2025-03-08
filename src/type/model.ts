@@ -3,7 +3,7 @@ export interface VideoItem {
   author: UserInfo
   url: string // 应该是一个BV号,用在video的路径参数
   cover: string
-  playCount: number
+  playCount: number | string //具体数字或者格式化后的数字
   uploadTime: string // 时间戳？
   description: string // 视频名字
 }
@@ -25,4 +25,6 @@ export interface VideoDetail extends VideoItem {
   author: UserInfo & { description: string }
   tags: Tag[]
   isCollected: boolean
+  filePath: string
+  recommended: VideoItem[]
 }

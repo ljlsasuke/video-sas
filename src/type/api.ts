@@ -1,5 +1,5 @@
 // 这个文件是用来定义接口返回数据的类型的
-import type { UserInfo, VideoItem } from './model'
+import type { UserInfo, VideoDetail, VideoItem } from './model'
 interface ResponseStructure<T> {
   code: number
   message: string
@@ -16,3 +16,4 @@ export interface LoginResData {
 export type recommendedResT = ResponseStructure<VideoItem[]>
 
 export type LoginResT = ResponseStructure<LoginResData>
+export type VideoDetailResT = ResponseStructure<VideoDetail>
