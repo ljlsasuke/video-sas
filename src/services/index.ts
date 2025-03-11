@@ -10,10 +10,6 @@ export const login = (data: { username: string; password: string }) => {
   })
 }
 
-export const refreshToken = () => {
-  return $get('/token/refresh/')
-}
-
 export const getVideoList = () => {
   return $get<recommendedResT>('/videos/recommended/').then((res) => {
     if (res.code !== 200) return Promise.reject(res.message)

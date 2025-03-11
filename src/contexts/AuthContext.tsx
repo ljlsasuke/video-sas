@@ -11,7 +11,9 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
-
+/**
+ * @deprecated 此Provider已弃用，请使用 useAuthStore 代替
+ */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(() => {
     const stored = localStorage.getItem('token')
@@ -57,7 +59,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   )
 }
-
+/**
+ * @deprecated 此 Hook 已弃用，请使用 useAuthStore 代替。
+ * 由于状态管理还设计了刷新token，这个逻辑需要在组件之外进行，所以Context 并不合适，使用 zustand 状态管理库代替
+ */
 export const useAuth = () => {
   const context = useContext(AuthContext)
   if (!context) {

@@ -1,15 +1,12 @@
 import TopNav from '@/components/TopNav'
-import { AuthProvider } from '@/contexts/AuthContext'
 import { Outlet } from 'umi'
 export default function Layout() {
   return (
-    <AuthProvider>
-      <div className="flex flex-col items-center">
-        <TopNav></TopNav>
-        <div className="mt-mtn w-5/6">
-          <Outlet />
-        </div>
+    <div className="flex flex-col items-center">
+      <TopNav></TopNav>
+      <div className="mt-mtn w-5/6">
+        <Outlet />
       </div>
-    </AuthProvider>
+    </div>
   )
 }

@@ -3,6 +3,7 @@
         "bradlc.vscode-tailwindcss",
         "esbenp.prettier-vscode",
         "dsznajder.es7-react-js-snippets",
-        "1943time.inkdown"
+        "1943time.inkdown",
+        "yoavbls.pretty-ts-errors"
     ],
 }

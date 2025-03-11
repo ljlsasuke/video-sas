@@ -1,13 +1,13 @@
 import message from '@/components/Message'
-import { useAuth } from '@/contexts/AuthContext'
 import { login } from '@/services'
+import { useAuthStore } from '@/store/authStore'
 import { useState } from 'react'
 import SasIcon from './SasIcon'
 interface LoginProps {
   onClose: () => void
 }
 export default function Login({ onClose }: LoginProps) {
-  const { setAuthState } = useAuth()
+  const setAuthState = useAuthStore((state) => state.setAuthState)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const onLogin = async () => {
@@ -17,7 +17,7 @@ export default function Login({ onClose }: LoginProps) {
     })
       .then(({ data }) => {
         setAuthState(data)
-        message.success('登录成功')
+        message.success('登录成功,' + data.userInfo.username)
       })
       .catch((err: string) => {
         message.error(err)

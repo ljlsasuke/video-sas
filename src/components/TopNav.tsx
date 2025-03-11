@@ -1,5 +1,5 @@
 import SasIcon from '@/components/SasIcon'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuthStore } from '@/store/authStore'
 import { useState } from 'react'
 import { history } from 'umi'
 import Login from './Login'
@@ -11,7 +11,9 @@ export default function TopNav() {
     icon: string
   }
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
-  const { isLoggedIn, userInfo } = useAuth()
+  // 使用选择器模式，只订阅需要的状态
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
+  const userInfo = useAuthStore((state) => state.userInfo)
   const list: ListItem[] = [
     {
       id: 4,

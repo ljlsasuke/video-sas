@@ -1,7 +1,9 @@
 import message from '@/components/Message'
-import { useAuth } from '@/contexts/AuthContext'
 import { getVideoList } from '@/services'
+import { useAuthStore } from '@/store/authStore'
 import type { VideoItem } from '@/type/model'
+import { TOKEN_REFRESHED_EVENT } from '@/utils/http'
+import pubsub from '@/utils/pubsub'
 import { useEffect, useState } from 'react'
 import { history } from 'umi'
 export default function HomePage() {
@@ -25,8 +27,10 @@ export default function HomePage() {
   ]
   const [videoList, setVideoList] = useState<VideoItem[]>([])
   const [activeIndex, setActiveIndex] = useState<number>(0)
-  const { isLoggedIn } = useAuth()
-  useEffect(() => {
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
+
+  const fetchVideoList = () => {
+    // leftList里有个标识，发请求的时候通过这个表示请求不同的接口或接口内部做处理
     getVideoList()
       .then(({ data }) => {
         setVideoList(data)
@@ -34,6 +38,21 @@ export default function HomePage() {
       .catch((err) => {
         message.error(err)
       })
+  }
+  useEffect(() => {
+    // 初始获取视频列表
+    fetchVideoList()
+
+    // 使用 pubsub 订阅 token 刷新事件
+    const hashKey = pubsub.subscribe(TOKEN_REFRESHED_EVENT, () => {
+      console.log('Token已刷新，重新获取视频列表')
+      fetchVideoList()
+    })
+
+    // 组件卸载时取消订阅
+    return () => {
+      pubsub.unsubscribe(hashKey)
+    }
   }, [activeIndex, isLoggedIn])
   return (
     <div className="flex flex-col">
