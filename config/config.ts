@@ -9,11 +9,10 @@ export default defineConfig({
   ],
   npmClient: 'pnpm',
   favicons: ['/logo.svg'],
-  plugins: ['@umijs/plugins/dist/tailwindcss', '@umijs/plugins/dist/request'],
+  plugins: ['@umijs/plugins/dist/tailwindcss'],
   tailwindcss: {
     timeout: 10000, // 10s 算启动超时
   },
-  request: {},
   define: {
     'process.env.UMI_APP_API_URL': process.env.UMI_APP_API_URL,
     'process.env.UMI_APP_ENV': process.env.UMI_APP_ENV,
