@@ -85,8 +85,8 @@ axiosInstance.interceptors.response.use(
     }
     // 处理不是401的错误
     let errorMessage = response.message // 这个是 axios自动给的message
-    if (typeof response?.data.message === 'string')
-      errorMessage = response.data.message // 如果后端传过来的有错误信息就用后端的替换调
+    if (typeof response.data?.message === 'string')
+      errorMessage = response.data.message // 如果后端传过来的有错误信息就用后端的替换掉
     switch (status) {
       case 400:
         errorMessage = '请求参数错误: ' + errorMessage
