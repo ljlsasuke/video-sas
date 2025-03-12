@@ -15,7 +15,7 @@ export default function Login({ onClose }: LoginProps) {
       username,
       password,
     })
-      .then(({ data }) => {
+      .then((data) => {
         setAuthState(data)
         message.success('登录成功,' + data.userInfo.username)
       })

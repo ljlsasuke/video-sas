@@ -1,9 +1,8 @@
 import message from '@/components/Message'
 import SasIcon from '@/components/SasIcon'
 import { getVideoDetail } from '@/services'
+import { useAuthStore } from '@/store/authStore'
 import type { VideoDetail } from '@/type'
-import { TOKEN_REFRESHED_EVENT } from '@/utils/http'
-import pubsub from '@/utils/pubsub'
 import { useEffect, useRef, useState } from 'react'
 import { history, Link, useParams } from 'umi'
 import videojs from 'video.js'
@@ -15,10 +14,11 @@ export default function video() {
   const videoRef = useRef(null)
   const playerRef = useRef<any>(null) // 添加 player 的引用
   const [videoDetail, setVideoDetail] = useState<VideoDetail>()
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
   const fetchVideoDetail = () => {
     if (!bv) return message.error('未传入BV号！')
     getVideoDetail(bv)
-      .then(({ data }) => {
+      .then((data) => {
         setVideoDetail(data)
       })
       .catch((err) => {
@@ -27,15 +27,7 @@ export default function video() {
   }
   useEffect(() => {
     fetchVideoDetail()
-    const hashKey = pubsub.subscribe(TOKEN_REFRESHED_EVENT, () => {
-      console.log('Token已刷新，重新获取视频详情')
-      fetchVideoDetail()
-    })
-    // 组件卸载时取消订阅
-    return () => {
-      pubsub.unsubscribe(hashKey)
-    }
-  }, [bv])
+  }, [bv, isLoggedIn])
   useEffect(() => {
     if (videoRef.current) {
       const player = videojs(videoRef.current, {

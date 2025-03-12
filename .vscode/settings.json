@@ -14,7 +14,8 @@
     },
     "cSpell.words": [
         "umijs",
-        "videojs"
+        "videojs",
+        "YMDHMS"
     ],
     // "[vue]": {
     //     "editor.defaultFormatter": "Vue.volar"

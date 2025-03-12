@@ -2,8 +2,6 @@ import message from '@/components/Message'
 import { getVideoList } from '@/services'
 import { useAuthStore } from '@/store/authStore'
 import type { VideoItem } from '@/type/model'
-import { TOKEN_REFRESHED_EVENT } from '@/utils/http'
-import pubsub from '@/utils/pubsub'
 import { useEffect, useState } from 'react'
 import { history } from 'umi'
 export default function HomePage() {
@@ -11,28 +9,35 @@ export default function HomePage() {
     id: number
     name: string
   }
-  const leftList: ListItem[] = [
-    {
-      id: 1,
-      name: '个性推荐',
-    },
-    {
-      id: 2,
-      name: '正在关注',
-    },
-    {
-      id: 3,
-      name: '热门排行',
-    },
-  ]
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
+  const leftList: ListItem[] = isLoggedIn
+    ? [
+        {
+          id: 1,
+          name: '个性推荐',
+        },
+        {
+          id: 2,
+          name: '正在关注',
+        },
+        {
+          id: 3,
+          name: '热门排行',
+        },
+      ]
+    : [
+        {
+          id: 3,
+          name: '热门排行',
+        },
+      ]
   const [videoList, setVideoList] = useState<VideoItem[]>([])
   const [activeIndex, setActiveIndex] = useState<number>(0)
-  const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
 
   const fetchVideoList = () => {
     // leftList里有个标识，发请求的时候通过这个表示请求不同的接口或接口内部做处理
     getVideoList()
-      .then(({ data }) => {
+      .then((data) => {
         setVideoList(data)
       })
       .catch((err) => {
@@ -40,19 +45,13 @@ export default function HomePage() {
       })
   }
   useEffect(() => {
+    if (activeIndex >= leftList.length) {
+      setActiveIndex(0)
+    }
+  }, [leftList])
+  useEffect(() => {
     // 初始获取视频列表
     fetchVideoList()
-
-    // 使用 pubsub 订阅 token 刷新事件
-    const hashKey = pubsub.subscribe(TOKEN_REFRESHED_EVENT, () => {
-      console.log('Token已刷新，重新获取视频列表')
-      fetchVideoList()
-    })
-
-    // 组件卸载时取消订阅
-    return () => {
-      pubsub.unsubscribe(hashKey)
-    }
   }, [activeIndex, isLoggedIn])
   return (
     <div className="flex flex-col">
