@@ -37,6 +37,17 @@ export default function video() {
           hotkeys: true,
         },
       })
+      /**
+       * videoRef.current 原生的Video标签
+       * player/playerRef.current videojs创建的一个播放器实例
+       * playerElement 播放器实例对应的DOM元素
+       */
+      player.ready(() => {
+        const playerElement = player.el() as HTMLElement
+        if (playerElement) {
+          playerElement.focus()
+        }
+      })
       playerRef.current = player // 保存 player 实例到 playerRef
       return () => player.dispose()
     }
@@ -45,6 +56,7 @@ export default function video() {
   useEffect(() => {
     if (playerRef.current && videoDetail?.filePath) {
       playerRef.current.src({ src: videoDetail.filePath, type: 'video/mp4' })
+      playerRef.current.el().focus()
     }
   }, [videoDetail?.filePath])
   const onCollect = () => {
