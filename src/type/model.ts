@@ -1,5 +1,4 @@
 export interface VideoItem {
-  id: number
   author: UserInfo
   url: string // 应该是一个BV号,用在video的路径参数
   cover: string
@@ -27,4 +26,22 @@ export interface VideoDetail extends VideoItem {
   isCollected: boolean
   filePath: string
   recommended: VideoItem[]
+}
+
+export interface CollectionItem {
+  id: number
+  video: VideoItem
+  createdAt: string // 收藏时间
+}
+
+export interface WatchHistoryItem {
+  id: number
+  video: VideoItem
+  watchedAt: string // 观看时间
+}
+
+export interface WatchLaterItem {
+  id: number
+  video: VideoItem
+  addedAt: string // 添加稍后再看时间
 }

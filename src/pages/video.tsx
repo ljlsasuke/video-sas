@@ -1,8 +1,9 @@
 import message from '@/components/Message'
 import SasIcon from '@/components/SasIcon'
-import { getVideoDetail } from '@/services'
+import { getVideoDetail, toggleCollection } from '@/services'
 import { useAuthStore } from '@/store/authStore'
 import type { VideoDetail } from '@/type'
+import { produce } from 'immer'
 import { useEffect, useRef, useState } from 'react'
 import { history, Link, useParams } from 'umi'
 import videojs from 'video.js'
@@ -59,11 +60,19 @@ export default function video() {
       playerRef.current.el().focus()
     }
   }, [videoDetail?.filePath])
-  const onCollect = () => {
-    console.log(
-      '现在是否收藏为' + videoDetail?.isCollected,
-      '点击后变为' + !videoDetail?.isCollected,
-    )
+  const onCollect = async () => {
+    if (videoDetail?.isCollected === undefined) return
+    try {
+      await toggleCollection(videoDetail.url, videoDetail.isCollected)
+      message.success(videoDetail.isCollected ? '取消收藏成功' : '收藏成功')
+      setVideoDetail(
+        produce(videoDetail, (draft) => {
+          draft.isCollected = !draft.isCollected
+        }),
+      )
+    } catch (error) {
+      message.error(String(error))
+    }
   }
   return (
     <div className="flex h-full">
@@ -142,7 +151,7 @@ export default function video() {
           {videoDetail?.recommended.map((item, index) => (
             <div
               onClick={() => history.push(`${item.url}`)}
-              key={`${item.id}-${index}`}
+              key={`${item.url}-${index}`}
               className="flex cursor-pointer space-x-3 rounded p-2 hover:bg-gray-100"
             >
               <div className="h-20 w-32 overflow-hidden rounded bg-gray-300">

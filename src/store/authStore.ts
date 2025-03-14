@@ -10,7 +10,7 @@ interface AuthState {
   // 操作方法
   setAuthState: (authData: LoginResData) => void
   clearAuthState: () => void
-  refreshToken: (newToken: string, newRefresh?: string) => void
+  refreshToken: (newToken: string) => void
 }
 
 // 从localStorage获取初始状态

@@ -111,7 +111,7 @@ export default function HomePage() {
         <div className="columns-3 gap-5 space-y-5 [column-fill:_balance] sm:columns-1 md:columns-2 lg:columns-3">
           {videoList.map((item, index) => (
             <div
-              key={`${item.id}-${index}`}
+              key={`${item.url}-${index}`}
               onClick={() => history.push(`video/${item.url}`)}
               className="transform cursor-pointer break-inside-avoid-column overflow-hidden transition-transform hover:scale-105"
             >
