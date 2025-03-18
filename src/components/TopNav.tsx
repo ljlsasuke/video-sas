@@ -209,113 +209,74 @@ export default function TopNav() {
     }
   }, [isLoggedIn])
 
-  // 渲染收藏弹出内容
-  const renderCollectionPopoverContent = () => (
-    <ul className="flex flex-col gap-2">
-      {popoverStates[4].data.map((item) => (
-        <li
-          key={item.id}
-          className="flex max-h-[800px] w-[600px] cursor-pointer"
-          onClick={() => history.push(`/video/${item.video.url}`)}
-        >
-          <div className="h-[90px] w-[160px] overflow-hidden rounded-md">
-            <img
-              src={item.video.cover}
-              className="h-full w-full object-cover"
-            />
-          </div>
-          <div className="ml-3">
-            <h1>{item.video.description}</h1>
-            <p className="mt-3 text-sm text-gray-500">
-              {item.video.author.username}
-            </p>
-            <p className="text-sm text-gray-500">
-              <span>收藏于：</span>
-              {formatDate((item as CollectionItem).createdAt, FormatType.later)}
-            </p>
-          </div>
-        </li>
-      ))}
-    </ul>
-  )
-
-  // 渲染历史记录弹出内容
-  const renderHistoryPopoverContent = () => (
-    <ul className="flex flex-col gap-2">
-      {popoverStates[9].data.map((item) => (
-        <li
-          key={item.id}
-          className="flex max-h-[800px] w-[600px] cursor-pointer"
-          onClick={() => history.push(`/video/${item.video.url}`)}
-        >
-          <div className="h-[90px] w-[160px] overflow-hidden rounded-md">
-            <img
-              src={item.video.cover}
-              className="h-full w-full object-cover"
-            />
-          </div>
-          <div className="ml-3">
-            <h1>{item.video.description}</h1>
-            <p className="mt-3 text-sm text-gray-500">
-              {item.video.author.username}
-            </p>
-            <p className="text-sm text-gray-500">
-              <span>观看时间：</span>
-              {formatDate(
-                (item as WatchHistoryItem).watchedAt,
-                FormatType.YMDHMS,
-              )}
-            </p>
-          </div>
-        </li>
-      ))}
-    </ul>
-  )
-
-  // 渲染稍后再看弹出内容
-  const renderWatchLaterPopoverContent = () => (
-    <ul className="flex flex-col gap-2">
-      {popoverStates[7].data.map((item) => (
-        <li
-          key={item.id}
-          className="flex max-h-[800px] w-[600px] cursor-pointer"
-          onClick={() => history.push(`/video/${item.video.url}`)}
-        >
-          <div className="h-[90px] w-[160px] overflow-hidden rounded-md">
-            <img
-              src={item.video.cover}
-              className="h-full w-full object-cover"
-            />
-          </div>
-          <div className="ml-3">
-            <h1>{item.video.description}</h1>
-            <p className="mt-3 text-sm text-gray-500">
-              {item.video.author.username}
-            </p>
-            <p className="text-sm text-gray-500">
-              <span>添加时间：</span>
-              {formatDate((item as WatchLaterItem).addedAt, FormatType.later)}
-            </p>
-          </div>
-        </li>
-      ))}
+  // 通用的渲染列表内容
+  const renderListContent = (
+    data: (CollectionItem | WatchHistoryItem | WatchLaterItem)[],
+    getTimeLabel: (item: any) => { label: string; time: string },
+  ) => (
+    <ul className="flex max-h-[800px] flex-col gap-2 overflow-y-auto">
+      {data.length !== 0 ? (
+        data.map((item) => (
+          <li
+            key={item.id}
+            className="flex w-[400px] cursor-pointer"
+            onClick={() => history.push(`/video/${item.video.url}`)}
+          >
+            <div className="h-[90px] w-[160px] overflow-hidden rounded-md">
+              <img
+                src={item.video.cover}
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <div className="ml-3 flex-1">
+              <h1 className="line-clamp-1">{item.video.description}</h1>
+              <p className="mt-3 text-sm text-gray-500">
+                {item.video.author.username}
+              </p>
+              <p className="text-sm text-gray-500">
+                <span>{getTimeLabel(item).label}</span>
+                {getTimeLabel(item).time}
+              </p>
+            </div>
+          </li>
+        ))
+      ) : (
+        <div className="flex h-full items-center justify-center">
+          <p className="text-sm text-gray-500">暂无数据</p>
+        </div>
+      )}
     </ul>
   )
 
   // 根据ID获取弹出内容
   const getPopoverContent = (id: number) => {
-    switch (id) {
-      case 0:
-        return renderUserPopoverContent()
-      case 4:
-        return renderCollectionPopoverContent()
-      case 9:
-        return renderHistoryPopoverContent()
-      case 7:
-        return renderWatchLaterPopoverContent()
-      default:
-        return null
+    if (id === 0) {
+      return renderUserPopoverContent()
     }
+
+    const timeLabels = {
+      4: (item: CollectionItem) => ({
+        label: '收藏于：',
+        time: formatDate(item.createdAt, FormatType.later),
+      }),
+      9: (item: WatchHistoryItem) => ({
+        label: '观看时间：',
+        time: formatDate(item.watchedAt, FormatType.YMDHMS),
+      }),
+      7: (item: WatchLaterItem) => ({
+        label: '添加时间：',
+        time: formatDate(item.addedAt, FormatType.later),
+      }),
+    }
+
+    if (id in timeLabels) {
+      return renderListContent(
+        popoverStates[id].data,
+        timeLabels[id as keyof typeof timeLabels],
+      )
+    }
+
+    return null
   }
 
   return (

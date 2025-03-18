@@ -277,7 +277,7 @@ const Popover: React.FC<PopoverProps> = ({
         <div
           ref={contentRef}
           {...getContentProps()}
-          className={`absolute z-50 min-w-[200px] transform rounded-lg bg-white p-3 shadow-lg transition-all duration-200 ease-in-out ${getPlacementStyle()} ${animationClass} ${overlayClassName}`}
+          className={`absolute z-50 w-fit min-w-[200px] transform rounded-lg bg-white p-3 shadow-lg transition-all duration-200 ease-in-out ${getPlacementStyle()} ${animationClass} ${overlayClassName}`}
         >
           {title && (
             <div className="mb-2 border-b border-gray-100 pb-2 text-center font-bold">

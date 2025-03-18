@@ -100,7 +100,7 @@ export default function video() {
           </div>
         </div>
         {/* 功能列表，添加到收藏，稍后再看之类的 */}
-        <ul>
+        <ul className="pb-3">
           <li className="cursor-pointer" onClick={onCollect}>
             <SasIcon
               name="star-filled"
@@ -161,8 +161,8 @@ export default function video() {
                   className="h-full w-full object-cover"
                 />
               </div>
-              <div>
-                <h4 className="mb-2 line-clamp-2 font-medium">
+              <div className="flex-1">
+                <h4 className="mb-2 line-clamp-1 font-medium">
                   {item.description}
                 </h4>
                 <div className="mb-2 flex text-gray-500">
