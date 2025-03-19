@@ -35,7 +35,49 @@ export default function video() {
         controls: true,
         fluid: false,
         userActions: {
-          hotkeys: true,
+          // hotkeys: true, 不知道为什么 快进/快退 和音量增大/减小 不起效果，改成自定义实现吧
+          hotkeys: function (this: any, event: KeyboardEvent) {
+            // 阻止默认行为，防止与页面滚动冲突
+            event.preventDefault()
+
+            const player = this
+
+            switch (event.code) {
+              // 左右方向键：快退/快进 5 秒
+              case 'ArrowLeft': // 左方向键
+                player.currentTime(player.currentTime() - 5)
+                break
+              case 'ArrowRight': // 右方向键
+                player.currentTime(player.currentTime() + 5)
+                break
+
+              // 上下方向键：音量控制
+              case 'ArrowUp': // 上方向键
+                player.volume(Math.min(player.volume() + 0.1, 1))
+                break
+              case 'ArrowDown': // 下方向键
+                player.volume(Math.max(player.volume() - 0.1, 0))
+                break
+
+              // 空格键：播放/暂停
+              case 'Space':
+                if (player.paused()) {
+                  player.play()
+                } else {
+                  player.pause()
+                }
+                break
+
+              // F键：全屏/退出全屏
+              case 'KeyF': // F键
+                if (player.isFullscreen()) {
+                  player.exitFullscreen()
+                } else {
+                  player.requestFullscreen()
+                }
+                break
+            }
+          },
         },
       })
       /**
