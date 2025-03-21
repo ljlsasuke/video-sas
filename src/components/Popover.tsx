@@ -203,7 +203,8 @@ const Popover: React.FC<PopoverProps> = ({
           },
           onMouseLeave: (e: React.MouseEvent) => {
             // 检查鼠标是否移动到了内容区域
-            const toElement = e.relatedTarget as Node
+            const toElement = e.relatedTarget
+            if (!toElement || !(toElement instanceof Node)) return
             if (contentRef.current && contentRef.current.contains(toElement)) {
               return // 如果移动到内容区域，不关闭
             }
