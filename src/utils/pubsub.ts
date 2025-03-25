@@ -3,8 +3,7 @@ const randomHashKeyGenerator = (): HashKey => {
   return Math.random().toString(36).substring(2, 15)
 }
 type CallBack<D = unknown> = (data?: D) => void
-interface Subscribers<E extends string = string> {
-  eventName: E
+interface Subscribers {
   callback: CallBack<any>
   hashKey: HashKey
 }
@@ -26,7 +25,7 @@ class PubSub {
     callback: CallBack<D>,
   ): HashKey => {
     const hashKey = randomHashKeyGenerator()
-    const newSub = { eventName: event, callback, hashKey }
+    const newSub = { callback, hashKey }
 
     if (!this.subscribers.has(event)) {
       this.subscribers.set(event, [])
