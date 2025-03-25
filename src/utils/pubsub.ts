@@ -1,14 +1,17 @@
-type HashKey = string
+// 参考：
+// https://chat.deepseek.com/a/chat/s/57605902-beeb-4fd9-8f2b-3146da9c0c3b
+// https://chat.deepseek.com/a/chat/s/2c606220-a924-420d-808a-f1708f553409
+type HashKey = symbol
 const randomHashKeyGenerator = (): HashKey => {
-  return Math.random().toString(36).substring(2, 15)
+  return Symbol('pubsub-key')
 }
 type CallBack<D = unknown> = (data?: D) => void
-interface Subscribers {
-  callback: CallBack<any>
+interface Subscribers<D = unknown> {
+  callback: CallBack<D>
   hashKey: HashKey
 }
 class PubSub {
-  private subscribers: Map<string, Subscribers[]>
+  private subscribers: Map<string, Subscribers<any>[]>
   constructor() {
     this.subscribers = new Map()
   }
@@ -16,14 +19,20 @@ class PubSub {
   publish = <E extends string, D = unknown>(event: E, data?: D): boolean => {
     const events = this.subscribers.get(event)
     if (!events?.length) return false
-    events.forEach(({ callback }) => callback(data))
+    events.forEach(({ callback }) => {
+      try {
+        callback(data)
+      } catch (error) {
+        console.error(`事件 ${String(event)} 的回调执行出错:`, error)
+      }
+    })
     return true
   }
 
   subscribe = <E extends string, D = unknown>(
     event: E,
     callback: CallBack<D>,
-  ): HashKey => {
+  ): (() => void) => {
     const hashKey = randomHashKeyGenerator()
     const newSub = { callback, hashKey }
 
@@ -32,29 +41,52 @@ class PubSub {
     }
     // 把初次订阅的增加通过这里实现，可以减少一次get查询
     this.subscribers.get(event)!.push(newSub)
-    return hashKey
+    return () => {
+      const events = this.subscribers.get(event)
+      if (!events) return
+      const i = events.findIndex(({ hashKey }) => hashKey === newSub.hashKey)
+      if (i === -1) return
+      events.splice(i, 1)
+      if (events.length === 0) this.subscribers.delete(event)
+    }
   }
-
-  unsubscribe = (hashKey: HashKey): boolean => {
-    if (!hashKey) return false
-    let found = false
-    for (const [event, subs] of this.subscribers) {
-      let i = subs.length
-      while (i--) {
-        // 反向遍历避免splice影响索引
-        if (subs[i].hashKey === hashKey) {
-          subs.splice(i, 1)
-          found = true
-        }
-      }
-      if (subs.length === 0) {
-        this.subscribers.delete(event)
+  subscribeOnce = <E extends string, D = unknown>(
+    event: E,
+    callback: CallBack<D>,
+  ): (() => void) => {
+    // 1. 创建一个包装函数
+    const onceCallback = (data?: D) => {
+      try {
+        callback(data) // 执行原始回调
+      } finally {
+        unsubscribe() // 无论成功与否都取消订阅
       }
     }
-    return found
+
+    // 2. 正常订阅这个包装函数
+    const unsubscribe = this.subscribe(event, onceCallback)
+
+    // 3. 返回取消订阅函数
+    return unsubscribe
   }
-  getAllSubscribers = (): Readonly<Subscribers[]> =>
-    Object.freeze([...this.subscribers.values()].flat())
+  /**
+   *  取消某个事件的所有订阅
+   * @param event 事件名
+   * @returns 是否成功
+   */
+  unsubscribeAll = (event: string): boolean => {
+    return this.subscribers.delete(event)
+  }
+
+  getEventSubscribers = (
+    event: string,
+  ): Readonly<Subscribers[]> | undefined => {
+    return this.subscribers.get(event)
+  }
+
+  getEvents = (): string[] => {
+    return Array.from(this.subscribers.keys())
+  }
 
   clearAllSubscribers = (): void => {
     this.subscribers.clear()
@@ -67,9 +99,11 @@ const createPubSubInstance = (): PubSubInterface => {
   const ins = new PubSub()
   return {
     subscribe: ins.subscribe,
-    unsubscribe: ins.unsubscribe,
+    subscribeOnce: ins.subscribeOnce,
+    unsubscribeAll: ins.unsubscribeAll,
     publish: ins.publish,
-    getAllSubscribers: ins.getAllSubscribers,
+    getEventSubscribers: ins.getEventSubscribers,
+    getEvents: ins.getEvents,
     clearAllSubscribers: ins.clearAllSubscribers,
   }
 }
