@@ -108,4 +108,6 @@ const createPubSubInstance = (): PubSubInterface => {
   }
 }
 const pubsub = createPubSubInstance()
+// 传统单例模式（设置构造函数为私有， 定义 getInstance 的静态方法 导出 唯一实例）
+// 这是一个基于模块的单例模式 (Module Singleton Pattern) 参考：https://chat.deepseek.com/a/chat/s/8db438bb-e31a-4874-b87d-6753ea43d209
 export default pubsub
