@@ -1,5 +1,5 @@
 import message from '@/components/Message'
-import { login } from '@/services'
+import { login, register } from '@/services'
 import { useAuthStore } from '@/store/authStore'
 import { useState } from 'react'
 import SasIcon from './SasIcon'
@@ -18,6 +18,22 @@ export default function Login({ onClose }: LoginProps) {
       .then((data) => {
         setAuthState(data)
         message.success('登录成功,' + data.userInfo.username)
+      })
+      .catch((err: string) => {
+        message.error(err)
+      })
+      .finally(() => {
+        onClose()
+      })
+  }
+  const onRegister = async () => {
+    register({
+      username,
+      password,
+    })
+      .then((data) => {
+        setAuthState(data)
+        message.success('注册成功,' + data.userInfo.username)
       })
       .catch((err: string) => {
         message.error(err)
@@ -73,7 +89,10 @@ export default function Login({ onClose }: LoginProps) {
             </a>
           </div>
           <div className="flex gap-4">
-            <button className="h-10 w-full rounded-md border border-gray-400 text-black">
+            <button
+              onClick={onRegister}
+              className="h-10 w-full rounded-md border border-gray-400 text-black"
+            >
               注册
             </button>
             <button

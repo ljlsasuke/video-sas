@@ -34,6 +34,7 @@ export default function video() {
       const player = videojs(videoRef.current, {
         controls: true,
         fluid: false,
+        enableDocumentPictureInPicture: true, // 开启画中画模式
         userActions: {
           // hotkeys: true, 不知道为什么 快进/快退 和音量增大/减小 不起效果，改成自定义实现吧
           hotkeys: function (this: any, event: KeyboardEvent) {

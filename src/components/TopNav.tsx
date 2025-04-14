@@ -1,3 +1,4 @@
+import defaultAvatar from '@/assets/icons/user-no.svg'
 import SasIcon from '@/components/SasIcon'
 import { getCollections, getWatchHistory, getWatchLater } from '@/services'
 import { useAuthStore } from '@/store/authStore'
@@ -102,7 +103,7 @@ export default function TopNav() {
       <div className="flex items-start gap-3">
         <div className="h-16 w-16 overflow-hidden rounded-full transition-transform duration-300">
           <img
-            src={userInfo?.avatar}
+            src={userInfo?.avatar || defaultAvatar}
             className="h-full w-full"
             alt="用户头像"
           />
@@ -326,7 +327,7 @@ export default function TopNav() {
                   >
                     <div className="h-10 w-10 cursor-pointer overflow-hidden rounded-full">
                       <img
-                        src={userInfo?.avatar}
+                        src={userInfo?.avatar || defaultAvatar}
                         className="h-full w-full"
                         alt="用户头像"
                       />
