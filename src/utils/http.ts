@@ -49,6 +49,7 @@ axiosInstance.interceptors.response.use(
   },
   async (error) => {
     const { status, config, response } = error
+    if (!status || !response) return Promise.reject(error.message)
     if (status === 401 && !config._retry) {
       // _retry 是我自己加上去的
       // 根据这个config再重新发送请求
@@ -121,6 +122,19 @@ export const $put = <T>(url: string, data?: any, config?: OtherRequestConfig) =>
 
 export const $delete = <T>(url: string, config?: OtherRequestConfig) =>
   axiosInstance.delete<any, T>(url, config)
+
+export const $upload = <T>(
+  url: string,
+  file: File,
+  config?: OtherRequestConfig,
+) => {
+  const formData = new FormData()
+  formData.append('file', file)
+  return axiosInstance.post<any, T>(url, formData, {
+    ...config,
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+}
 
 export const toRefreshToken = async (): Promise<boolean> => {
   try {
