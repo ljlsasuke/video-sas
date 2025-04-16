@@ -6,12 +6,24 @@ export default defineConfig({
     { path: '/', component: 'home' },
     { path: '/video/:bv', component: 'video' },
     { path: '/search', component: 'search' },
+    {
+      path: '/space/:id',
+      component: 'space',
+      routes: [
+        { path: '/space/:id', redirect: '/space/:id/upload' },
+        { path: '/space/:id/upload', component: 'space/upload' },
+        { path: '/space/:id/collection', component: 'space/collection' },
+        { path: '/space/:id/watchlater', component: 'space/watchlater' },
+        { path: '/space/:id/watchHistory', component: 'space/watchHistory' },
+      ],
+    },
   ],
   npmClient: 'pnpm',
   favicons: ['/logo.svg'],
   plugins: ['@umijs/plugins/dist/tailwindcss'],
   tailwindcss: {
-    timeout: 10000, // 10s 算启动超时
+    // 设置超时时间为 10 秒（单位：毫秒）
+    timeout: 10000,
   },
   define: {
     'process.env.UMI_APP_API_URL': process.env.UMI_APP_API_URL,

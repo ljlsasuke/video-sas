@@ -1,11 +1,12 @@
 import defaultAvatar from '@/assets/icons/user-no.svg'
 import SasIcon from '@/components/SasIcon'
-import { getCollections, getWatchHistory, getWatchLater } from '@/services'
+import useCollections from '@/hooks/useCollections'
+import useWatchHistory from '@/hooks/useWatchHistory'
+import useWatchLater from '@/hooks/useWatchLater'
 import { useAuthStore } from '@/store/authStore'
 import type { CollectionItem, WatchHistoryItem, WatchLaterItem } from '@/type'
 import { formatDate, FormatType } from '@/utils/format'
-import { produce } from 'immer'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { history } from 'umi'
 import Login from './Login'
 import Popover from './Popover'
@@ -70,33 +71,9 @@ export default function TopNav() {
     }
     history.push(`/search?keyword=${keyword}`)
   }
-  const [popoverStates, setPopoverStates] = useState<
-    Record<
-      number,
-      {
-        visible: boolean
-        dataLoaded: boolean
-        data: CollectionItem[] | WatchHistoryItem[] | WatchLaterItem[]
-      }
-    >
-  >({
-    4: {
-      visible: false,
-      dataLoaded: false,
-      data: [] as CollectionItem[],
-    },
-    9: {
-      visible: false,
-      dataLoaded: false,
-      data: [] as WatchHistoryItem[],
-    },
-    7: {
-      visible: false,
-      dataLoaded: false,
-      data: [] as WatchLaterItem[],
-    },
-  })
-
+  const Collection = useCollections()
+  const WatchLater = useWatchLater()
+  const WatchHistory = useWatchHistory()
   // 渲染用户头像弹出内容
   const renderUserPopoverContent = () => (
     <>
@@ -134,9 +111,12 @@ export default function TopNav() {
           <SasIcon name="video-library" width={18} height={18}></SasIcon>
           <span>投稿管理</span>
         </div>
-        <div className="flex cursor-pointer items-center gap-2 rounded-md p-2 hover:bg-gray-100">
+        <div
+          onClick={() => history.push(`/space/${userInfo?.id}`)}
+          className="flex cursor-pointer items-center gap-2 rounded-md p-2 hover:bg-gray-100"
+        >
           <SasIcon name="user-no" width={18} height={18}></SasIcon>
-          <span>账号设置</span>
+          <span>个人空间</span>
         </div>
         <div
           className="flex cursor-pointer items-center gap-2 rounded-md p-2 text-red-500 hover:bg-gray-100"
@@ -148,68 +128,6 @@ export default function TopNav() {
       </div>
     </>
   )
-
-  const fetchCollections = async () => {
-    try {
-      const res = await getCollections()
-      setPopoverStates((prev) =>
-        produce(prev, (draft) => {
-          // 使用函数式更新获取最新状态
-          if (draft[4]) {
-            draft[4].data = res.results || []
-            draft[4].dataLoaded = true
-          }
-        }),
-      )
-    } catch (error) {
-      console.error('获取收藏失败:', error)
-    }
-  }
-
-  const fetchWatchHistory = async () => {
-    try {
-      const res = await getWatchHistory()
-      setPopoverStates((prev) =>
-        produce(prev, (draft) => {
-          if (draft[9]) {
-            draft[9].data = res.results || []
-            draft[9].dataLoaded = true
-          }
-        }),
-      )
-    } catch (error) {
-      console.error('获取历史记录失败:', error)
-    }
-  }
-
-  const fetchWatchLater = async () => {
-    try {
-      const res = await getWatchLater()
-      setPopoverStates((prev) =>
-        produce(prev, (draft) => {
-          if (draft[7]) {
-            draft[7].data = res.results || []
-            draft[7].dataLoaded = true
-          }
-        }),
-      )
-    } catch (error) {
-      console.error('获取稍后再看失败:', error)
-    }
-  }
-  useEffect(() => {
-    // 暂时先不设置触发PopOver的时候再渲染
-    // 先这样把UI做出来
-    if (isLoggedIn) {
-      fetchCollections()
-        .then(() => fetchWatchHistory())
-        .then(() => fetchWatchLater())
-      // fetchCollections()
-      // fetchWatchHistory()
-      // fetchWatchLater()
-    }
-  }, [isLoggedIn])
-
   // 通用的渲染列表内容
   const renderListContent = (
     data: (CollectionItem | WatchHistoryItem | WatchLaterItem)[],
@@ -270,9 +188,23 @@ export default function TopNav() {
       }),
     }
 
+    const item = {
+      4: Collection,
+      9: WatchHistory,
+      7: WatchLater,
+    }[id]
+
+    if (!item || item.isLoading || !item.data) {
+      return (
+        <div className="flex h-32 items-center justify-center">
+          <p className="text-sm text-gray-500">加载中...</p>
+        </div>
+      )
+    }
+
     if (id in timeLabels) {
       return renderListContent(
-        popoverStates[id].data,
+        item.data.results,
         timeLabels[id as keyof typeof timeLabels],
       )
     }

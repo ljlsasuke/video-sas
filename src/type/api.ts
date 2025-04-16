@@ -20,6 +20,14 @@ export type LimitOffsetStructure<T> = ResponseStructure<{
   results: T
 }>
 
+export type PageNumberStructure<T> = ResponseStructure<{
+  page: number
+  pageSize: number
+  total: number
+  totalPages: number
+  results: T
+}>
+
 export interface LoginResData {
   token: string
   refresh: string
@@ -33,4 +41,4 @@ export type VideoDetailResT = ResponseStructure<VideoDetail>
 
 export type WatchLaterResT = LimitOffsetStructure<WatchLaterItem[]>
 export type WatchHistoryResT = LimitOffsetStructure<WatchHistoryItem[]>
-export type CollectionsResT = LimitOffsetStructure<CollectionItem[]>
+export type CollectionsResT = PageNumberStructure<CollectionItem[]>

@@ -13,8 +13,12 @@
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
     "cSpell.words": [
+        "biliback",
+        "carplay",
+        "favicons",
         "umijs",
         "videojs",
+        "watchlater",
         "YMDHMS"
     ],
     // "[vue]": {

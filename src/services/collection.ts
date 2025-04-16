@@ -1,8 +1,20 @@
 import type { CollectionsResT } from '@/type'
 import { $delete, $get, $post } from '@/utils/http'
-export const getCollections = async (offset: number = 0, limit: number = 5) => {
+// 默认是当前登录用户（也就是自己）这时候不用传递userId后端通过token判断
+// 获取别人收藏夹的时候需要把 userId传给后端
+// 稍后再看和观看历史不加这个是因为这两个只能自己看
+export const getCollections = async (
+  page = 1,
+  pageSize = 10,
+  userId?: number,
+) => {
   let res = await $get<CollectionsResT>('/collections/', {
-    params: { offset, limit },
+    params: {
+      type: 'page',
+      page,
+      pageSize,
+      userId,
+    },
   })
   return res.data
 }
