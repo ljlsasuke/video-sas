@@ -1,6 +1,10 @@
+import defaultAvatar from '@/assets/icons/user-no.svg'
 import Dialog from '@/components/Dialog'
 import SasIcon from '@/components/SasIcon'
-import { useMemo, useState } from 'react'
+import { getUserInfo } from '@/services'
+import { useAuthStore } from '@/store/authStore'
+import type { UserInfo } from '@/type'
+import { useEffect, useMemo, useState } from 'react'
 import { history, Outlet, useLocation, useParams } from 'umi'
 export default function Space() {
   const params = useParams<{ id: string }>()
@@ -17,37 +21,52 @@ export default function Space() {
   const activateRoute = useMemo(() => {
     return location.pathname.split('/').at(-1)
   }, [location.pathname])
+  const currentUserId = useAuthStore((state) => state.userInfo?.id)
+  const isCurrentUser = Number(userId) === currentUserId
   type RouterPath = 'upload' | 'collection' | 'watchlater' | 'watchHistory'
   type RouterMapT = {
     name: string
     routePath: RouterPath
     icon?: string
+    isShow: boolean
   }
   const RouterMap: RouterMapT[] = [
     {
       name: '投稿管理',
       routePath: 'upload',
       icon: 'video-library',
+      isShow: isCurrentUser,
     },
     {
       name: '收藏视频',
       routePath: 'collection',
       icon: 'star',
+      isShow: true,
     },
     {
       name: '稍后再看',
       routePath: 'watchlater',
       icon: 'carplay',
+      isShow: isCurrentUser,
     },
     {
       name: '观看历史',
       routePath: 'watchHistory',
       icon: 'time-line',
+      isShow: isCurrentUser,
     },
   ]
+
+  const [userInfo, setUserInfo] = useState<UserInfo>()
+  useEffect(() => {
+    if (!userId) return
+    getUserInfo(Number(userId)).then((data) => {
+      setUserInfo(data)
+    })
+  }, [userId])
   return (
     <>
-      <div className="-top-tn absolute left-0 right-0 -z-10 h-48 w-screen">
+      <div className="absolute -top-tn left-0 right-0 -z-10 h-48 w-screen">
         <img
           className="h-full w-full object-cover"
           src="/biliback.png"
@@ -61,14 +80,18 @@ export default function Space() {
               onClick={onChangeAvatar}
               className="ring-3 group relative h-16 w-16 cursor-pointer overflow-hidden rounded-full ring-2 ring-white"
             >
-              <img src="/fakerAvatar.png" alt="" className="h-full w-full" />
+              <img
+                src={userInfo?.avatar || defaultAvatar}
+                alt=""
+                className="h-full w-full"
+              />
               <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
                 <span className="text-sm text-white">更新头像</span>
               </div>
             </div>
             <div className="ml-4 flex flex-col justify-around text-white">
-              <p className="font-semibold">只要微笑就好了i</p>
-              <p className="text-sm">事实，无情的事实</p>
+              <p className="font-semibold">{userInfo?.username}</p>
+              <p className="text-sm">{userInfo?.description}</p>
             </div>
           </div>
           <Dialog
@@ -93,26 +116,30 @@ export default function Space() {
             }
           >
             原来单身
+            {/* 这里放一个上传头像的组件和其他的东西 */}
           </Dialog>
         </header>
 
         <main className="mt-4 flex">
           <ul className="mr-2 w-48 space-y-2">
-            {RouterMap.map((item) => (
-              <li
-                key={item.routePath}
-                onClick={() => history.push(item.routePath)}
-                className={`${activateRoute === item.routePath ? 'bg-primary text-white' : 'hover:bg-gray-300'} flex cursor-pointer items-center rounded-lg px-2 py-3 transition-colors`}
-              >
-                <div className="mr-2">
-                  <SasIcon name={item.icon ?? 'folder'}></SasIcon>
-                </div>
-                <span>{item.name}</span>
-              </li>
-            ))}
+            {RouterMap.map(
+              (item) =>
+                item.isShow && (
+                  <li
+                    key={item.routePath}
+                    onClick={() => history.push(item.routePath)}
+                    className={`${activateRoute === item.routePath ? 'bg-primary text-white' : 'hover:bg-gray-300'} flex cursor-pointer items-center rounded-lg px-2 py-3 transition-colors`}
+                  >
+                    <div className="mr-2">
+                      <SasIcon name={item.icon ?? 'folder'}></SasIcon>
+                    </div>
+                    <span>{item.name}</span>
+                  </li>
+                ),
+            )}
           </ul>
           <div className="flex-1">
-            <Outlet />
+            <Outlet context={{ userId, isCurrentUser }} />
           </div>
         </main>
       </div>

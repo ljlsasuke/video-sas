@@ -12,6 +12,7 @@ export interface UserInfo {
   id: number // 用户的uid
   username: string
   avatar: string
+  description: string
 }
 
 export interface Tag {
@@ -21,7 +22,7 @@ export interface Tag {
 
 export interface VideoDetail extends VideoItem {
   // 进入video页面用到的属性
-  author: UserInfo & { description: string }
+  author: UserInfo
   tags: Tag[]
   isCollected: boolean
   filePath: string

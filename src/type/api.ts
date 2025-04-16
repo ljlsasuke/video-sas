@@ -34,6 +34,8 @@ export interface LoginResData {
   userInfo: UserInfo
 }
 
+export type UserInfoResT = ResponseStructure<UserInfo>
+
 export type recommendedResT = ResponseStructure<VideoItem[]>
 
 export type LoginResT = ResponseStructure<LoginResData>

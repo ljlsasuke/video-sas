@@ -10,7 +10,7 @@ export default defineConfig({
       path: '/space/:id',
       component: 'space',
       routes: [
-        { path: '/space/:id', redirect: '/space/:id/upload' },
+        { path: '/space/:id', redirect: '/space/:id/collection' },
         { path: '/space/:id/upload', component: 'space/upload' },
         { path: '/space/:id/collection', component: 'space/collection' },
         { path: '/space/:id/watchlater', component: 'space/watchlater' },
