@@ -202,13 +202,15 @@ const Popover: React.FC<PopoverProps> = ({
             handleVisibleChange(true)
           },
           onMouseLeave: (e: React.MouseEvent) => {
-            // 检查鼠标是否移动到了内容区域
             const toElement = e.relatedTarget
-            if (!toElement || !(toElement instanceof Node)) return
-            if (contentRef.current && contentRef.current.contains(toElement)) {
-              return // 如果移动到内容区域，不关闭
+            if (!toElement || !(toElement instanceof Node)) {
+              handleVisibleChange(false)
+              return
             }
-            handleVisibleChange(false) // 使用延迟关闭
+            if (contentRef.current && contentRef.current.contains(toElement)) {
+              return
+            }
+            handleVisibleChange(false)
           },
         }
       case 'click':
@@ -230,7 +232,6 @@ const Popover: React.FC<PopoverProps> = ({
     if (trigger === 'hover') {
       return {
         onMouseEnter: () => {
-          // 鼠标进入内容区域时，取消任何关闭定时器
           if (closeTimerRef.current) {
             clearTimeout(closeTimerRef.current)
             closeTimerRef.current = null
@@ -241,15 +242,15 @@ const Popover: React.FC<PopoverProps> = ({
           }
         },
         onMouseLeave: (e: React.MouseEvent) => {
-          // 检查鼠标是否移动到了触发区域
-          const toElement = e.relatedTarget as Node
-          if (
-            containerRef.current &&
-            containerRef.current.contains(toElement)
-          ) {
-            return // 如果移动到触发区域，不关闭
+          const toElement = e.relatedTarget
+          if (!toElement || !(toElement instanceof Node)) {
+            handleVisibleChange(false)
+            return
           }
-          handleVisibleChange(false) // 使用延迟关闭
+          if (containerRef.current && containerRef.current.contains(toElement)) {
+            return
+          }
+          handleVisibleChange(false)
         },
       }
     }
