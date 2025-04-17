@@ -1,15 +1,27 @@
 import defaultAvatar from '@/assets/icons/user-no.svg'
 import Dialog from '@/components/Dialog'
 import SasIcon from '@/components/SasIcon'
-import { getUserInfo } from '@/services'
+import { Upload } from '@/components/Upload'
+import { getUserInfo, uploadAvatar } from '@/services'
 import { useAuthStore } from '@/store/authStore'
 import type { UserInfo } from '@/type'
+import { produce } from 'immer'
 import { useEffect, useMemo, useState } from 'react'
 import { history, Outlet, useLocation, useParams } from 'umi'
 export default function Space() {
   const params = useParams<{ id: string }>()
   const location = useLocation()
   const { id: userId } = params
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const handleFileSelected = (file: File) => {
+    const { type } = file
+    if (type !== 'image/jpeg' && type !== 'image/png') {
+      return { allow: false, message: '请上传 jpeg 或 png 格式的图片!' }
+    }
+    setSelectedFile(file)
+    return { allow: true }
+  }
+
   const onChangeAvatar = () => {
     setIsDialogOpen(true)
   }
@@ -18,10 +30,27 @@ export default function Space() {
     // 可能还要做一些清理工作，比如清空上传的文件
     setIsDialogOpen(false)
   }
+  const onConfirm = async () => {
+    if (!selectedFile) return onCloseDialog()
+    uploadAvatar(selectedFile)
+      .then(({ url }) => {
+        setUserInfo(
+          produce((draft) => {
+            if (!draft) return
+            draft.avatar = url
+          }),
+        )
+        uploadUserInfo({ avatar: url })
+      })
+      .finally(() => {
+        onCloseDialog()
+      })
+  }
   const activateRoute = useMemo(() => {
     return location.pathname.split('/').at(-1)
   }, [location.pathname])
   const currentUserId = useAuthStore((state) => state.userInfo?.id)
+  const uploadUserInfo = useAuthStore((state) => state.updateUserInfoItems)
   const isCurrentUser = Number(userId) === currentUserId
   type RouterPath = 'upload' | 'collection' | 'watchlater' | 'watchHistory'
   type RouterMapT = {
@@ -76,19 +105,28 @@ export default function Space() {
       <div>
         <header className="h-20">
           <div className="flex h-16">
-            <div
-              onClick={onChangeAvatar}
-              className="ring-3 group relative h-16 w-16 cursor-pointer overflow-hidden rounded-full ring-2 ring-white"
-            >
-              <img
-                src={userInfo?.avatar || defaultAvatar}
-                alt=""
-                className="h-full w-full"
-              />
-              <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
-                <span className="text-sm text-white">更新头像</span>
+            {isCurrentUser ? (
+              <div
+                onClick={onChangeAvatar}
+                className="ring-3 group relative h-16 w-16 cursor-pointer overflow-hidden rounded-full ring-2 ring-white"
+              >
+                <img
+                  src={userInfo?.avatar || defaultAvatar}
+                  className="h-full w-full object-cover"
+                />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
+                  <span className="text-sm text-white">更新头像</span>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="ring-3 h-16 w-16 overflow-hidden rounded-full ring-2 ring-white">
+                <img
+                  src={userInfo?.avatar || defaultAvatar}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            )}
+
             <div className="ml-4 flex flex-col justify-around text-white">
               <p className="font-semibold">{userInfo?.username}</p>
               <p className="text-sm">{userInfo?.description}</p>
@@ -107,7 +145,7 @@ export default function Space() {
                   取消
                 </button>
                 <button
-                  onClick={() => onCloseDialog()}
+                  onClick={onConfirm}
                   className="rounded bg-blue-500 px-4 py-2 text-white"
                 >
                   确认
@@ -115,8 +153,12 @@ export default function Space() {
               </>
             }
           >
-            原来单身
-            {/* 这里放一个上传头像的组件和其他的东西 */}
+            <Upload
+              value={userInfo?.avatar}
+              type="avatar"
+              maxSize={3}
+              onFileSelected={handleFileSelected}
+            />
           </Dialog>
         </header>
 

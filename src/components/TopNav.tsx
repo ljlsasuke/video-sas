@@ -81,7 +81,7 @@ export default function TopNav() {
         <div className="h-16 w-16 overflow-hidden rounded-full transition-transform duration-300">
           <img
             src={userInfo?.avatar || defaultAvatar}
-            className="h-full w-full"
+            className="h-full w-full object-cover"
             alt="用户头像"
           />
         </div>
@@ -107,7 +107,10 @@ export default function TopNav() {
       </div>
 
       <div className="mt-3 flex flex-col gap-2">
-        <div className="flex cursor-pointer items-center gap-2 rounded-md p-2 hover:bg-gray-100">
+        <div
+          onClick={() => history.push(`/space/${userInfo?.id}/upload`)}
+          className="flex cursor-pointer items-center gap-2 rounded-md p-2 hover:bg-gray-100"
+        >
           <SasIcon name="video-library" width={18} height={18}></SasIcon>
           <span>投稿管理</span>
         </div>
@@ -260,7 +263,7 @@ export default function TopNav() {
                     <div className="h-10 w-10 cursor-pointer overflow-hidden rounded-full">
                       <img
                         src={userInfo?.avatar || defaultAvatar}
-                        className="h-full w-full"
+                        className="h-full w-full object-cover"
                         alt="用户头像"
                       />
                     </div>

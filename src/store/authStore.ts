@@ -11,6 +11,7 @@ interface AuthState {
   setAuthState: (authData: LoginResData) => void
   clearAuthState: () => void
   refreshToken: (newToken: string) => void
+  updateUserInfoItems: (updates: Partial<UserInfo>) => void
 }
 
 // 从localStorage获取初始状态
@@ -21,7 +22,7 @@ const getStoredUserInfo = () => {
   return stored ? JSON.parse(stored) : null
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   token: getStoredToken(),
   refresh: getStoredRefresh(),
   userInfo: getStoredUserInfo(),
@@ -42,6 +43,15 @@ export const useAuthStore = create<AuthState>((set) => ({
       userInfo,
       isLoggedIn: true,
     })
+  },
+
+  updateUserInfoItems(updates: Partial<UserInfo>) {
+    const userInfo = get().userInfo
+    if (!userInfo)
+      return console.warn('Attempted to update userInfo when it was null.')
+    const newUserInfo = { ...userInfo, ...updates }
+    set({ userInfo: newUserInfo })
+    localStorage.setItem('userInfo', JSON.stringify(newUserInfo))
   },
 
   clearAuthState: () => {

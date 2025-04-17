@@ -28,6 +28,13 @@ export default defineConfig({
   define: {
     'process.env.UMI_APP_API_URL': process.env.UMI_APP_API_URL,
     'process.env.UMI_APP_ENV': process.env.UMI_APP_ENV,
+    'process.env.UMI_APP_STATIC_URL': process.env.UMI_APP_BACK_URL,
+  },
+  proxy: {
+    '/media': {
+      target: process.env.UMI_APP_BACK_URL,
+      changeOrigin: true,
+    },
   },
   vite: {
     plugins: [

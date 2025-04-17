@@ -44,3 +44,5 @@ export type VideoDetailResT = ResponseStructure<VideoDetail>
 export type WatchLaterResT = LimitOffsetStructure<WatchLaterItem[]>
 export type WatchHistoryResT = LimitOffsetStructure<WatchHistoryItem[]>
 export type CollectionsResT = PageNumberStructure<CollectionItem[]>
+
+export type UploadResT = ResponseStructure<{ url: string }>
