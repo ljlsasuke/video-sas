@@ -19,9 +19,30 @@ export default function Collection() {
   )
   return (
     <div>
-      <header onClick={() => setPageNo((pageNo) => pageNo + 1)}>
-        收藏的Header{pageNo}
+      <header className="flex gap-3">
+        <div className="h-28 w-48 overflow-hidden rounded-md">
+          <img
+            className="h-full w-full object-cover"
+            src={data?.results[0]?.video.cover ?? '/fakerImg.jpg'}
+            alt="收藏夹封面"
+          />
+        </div>
+        <div className="flex flex-col justify-between">
+          <div>
+            <h1 className="text-xl">默认收藏夹</h1>
+            <div className="text-sm text-gray-400">视频数：{data?.total}</div>
+          </div>
+          <div className="mt-2 flex gap-3 text-sm">
+            <button className="rounded-lg bg-primary px-4 py-2 text-white">
+              播放全部
+            </button>
+            <button className="rounded-lg border border-[#e3e5e7] px-5 py-1 transition-colors hover:bg-[#e3e5e7]">
+              分享
+            </button>
+          </div>
+        </div>
       </header>
+      <div className="my-3 h-[0.5px] bg-[#e3e5e7]"></div>
       <div>
         <ul className="flex flex-wrap gap-4">
           {data?.results.map((collection) => (
