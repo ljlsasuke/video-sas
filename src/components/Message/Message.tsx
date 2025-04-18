@@ -69,7 +69,7 @@ export default function Message({
 
   return createPortal(
     <div
-      className={`fixed left-1/2 -translate-x-1/2 transform transition-all duration-300 ${
+      className={`fixed left-1/2 z-50 -translate-x-1/2 transform transition-all duration-300 ${
         isVisible ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'
       }`}
       style={{ top: `${top}px` }} // 使用动态top值

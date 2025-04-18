@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import { ReactNode, useEffect } from 'react'
 import SasIcon from './SasIcon'
 
 interface DialogProps {
@@ -19,7 +19,17 @@ export default function Dialog({
   showFooterDivider = true, // 默认显示分割线
 }: DialogProps) {
   if (!isOpen) return null
-
+  useEffect(() => {
+    const handlerEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose()
+      }
+    }
+    window.addEventListener('keydown', handlerEsc)
+    return () => {
+      window.removeEventListener('keydown', handlerEsc)
+    }
+  })
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="min-h-40 w-full max-w-md rounded-lg bg-white p-6">
@@ -33,7 +43,10 @@ export default function Dialog({
           </button>
         </div>
         <div
-          className={showFooterDivider ? 'border-b border-gray-200 pb-4' : ''}
+          className={
+            (showFooterDivider ? 'border-b border-gray-200 pb-4' : '') +
+            ' max-h-[75vh] overflow-y-auto px-0.5 [&::-webkit-scrollbar]:hidden'
+          }
         >
           {children}
         </div>
