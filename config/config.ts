@@ -23,7 +23,9 @@ export default defineConfig({
   plugins: ['@umijs/plugins/dist/tailwindcss'],
   tailwindcss: {
     // 设置超时时间为 10 秒（单位：毫秒）
-    timeout: 10000,
+    // 此配置无用，正确方法如下
+    // https://github.com/umijs/umi/issues/12563#issuecomment-2746306307
+    // timeout: 10000,
   },
   define: {
     'process.env.UMI_APP_API_URL': process.env.UMI_APP_API_URL,

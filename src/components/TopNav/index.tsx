@@ -64,24 +64,23 @@ export default function TopNav() {
           <SasIcon name="search" width={24} height={24}></SasIcon>
         </div>
       </div>
-      <ul className="flex items-center gap-2">
-        {isLoggedIn ? (
-          <VideoStar></VideoStar>
-        ) : (
-          <li
-            onClick={handleLoginClick}
-            className="flex cursor-pointer items-center rounded-full px-4 py-2 text-primary transition duration-200 ease-in-out hover:bg-primary hover:text-white"
-          >
-            <SasIcon
-              name="user-no"
-              width={22}
-              height={22}
-              className="mr-1"
-            ></SasIcon>
-            登录
-          </li>
-        )}
-      </ul>
+
+      {isLoggedIn ? (
+        <VideoStar></VideoStar>
+      ) : (
+        <div
+          onClick={handleLoginClick}
+          className="flex cursor-pointer items-center rounded-full px-4 py-2 text-primary transition duration-200 ease-in-out hover:bg-primary hover:text-white"
+        >
+          <SasIcon
+            name="user-no"
+            width={22}
+            height={22}
+            className="mr-1"
+          ></SasIcon>
+          登录
+        </div>
+      )}
       {isLoginModalOpen && <Login onClose={handleCloseModal}></Login>}
     </div>
   )

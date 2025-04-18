@@ -187,45 +187,49 @@ export default function VideoBar() {
 
     return null
   }
-  return list.map((item) => {
-    if (item.id === 0) {
-      // 用户个人信息这些数据就直接在登录之后获取然后存在状态管理库里面
-      return (
-        <li key={item.id} className="ml-2">
-          <Popover
-            trigger="hover"
-            placement="bottom"
-            content={getPopoverContent(item.id)}
-            className="right-0 w-64 -translate-x-0"
-          >
-            <div className="h-10 w-10 cursor-pointer overflow-hidden rounded-full">
-              <img
-                src={userInfo?.avatar || defaultAvatar}
-                className="h-full w-full object-cover"
-                alt="用户头像"
-              />
-            </div>
-          </Popover>
-        </li>
-      )
-    }
-    return (
-      <li key={item.id}>
-        <Popover
-          trigger="hover"
-          placement="bottom"
-          title={item.name}
-          content={getPopoverContent(item.id)}
-          className="right-0 w-[400px] -translate-x-0"
-        >
-          <div
-            className="cursor-pointer rounded-full border-black p-2 transition-colors duration-200 hover:bg-[#d7d7dd]"
-            onClick={() => onClickItem(item)}
-          >
-            <SasIcon name={item.icon} width={24} height={24}></SasIcon>
-          </div>
-        </Popover>
-      </li>
-    )
-  })
+  return (
+    <ul className="flex items-center gap-2">
+      {list.map((item) => {
+        if (item.id === 0) {
+          // 用户个人信息这些数据就直接在登录之后获取然后存在状态管理库里面
+          return (
+            <li key={item.id} className="ml-2">
+              <Popover
+                trigger="hover"
+                placement="bottom"
+                content={getPopoverContent(item.id)}
+                className="right-0 w-64 -translate-x-0"
+              >
+                <div className="h-10 w-10 cursor-pointer overflow-hidden rounded-full">
+                  <img
+                    src={userInfo?.avatar || defaultAvatar}
+                    className="h-full w-full object-cover"
+                    alt="用户头像"
+                  />
+                </div>
+              </Popover>
+            </li>
+          )
+        }
+        return (
+          <li key={item.id}>
+            <Popover
+              trigger="hover"
+              placement="bottom"
+              title={item.name}
+              content={getPopoverContent(item.id)}
+              className="right-0 w-[400px] -translate-x-0"
+            >
+              <div
+                className="cursor-pointer rounded-full border-black p-2 transition-colors duration-200 hover:bg-[#d7d7dd]"
+                onClick={() => onClickItem(item)}
+              >
+                <SasIcon name={item.icon} width={24} height={24}></SasIcon>
+              </div>
+            </Popover>
+          </li>
+        )
+      })}
+    </ul>
+  )
 }

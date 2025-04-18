@@ -247,7 +247,10 @@ const Popover: React.FC<PopoverProps> = ({
             handleVisibleChange(false)
             return
           }
-          if (containerRef.current && containerRef.current.contains(toElement)) {
+          if (
+            containerRef.current &&
+            containerRef.current.contains(toElement)
+          ) {
             return
           }
           handleVisibleChange(false)
