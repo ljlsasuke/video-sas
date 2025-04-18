@@ -136,7 +136,7 @@ export default function VideoBar() {
           </li>
         ))
       ) : (
-        <div className="flex h-full items-center justify-center">
+        <div className="flex h-full w-40 items-center justify-center">
           <p className="text-sm text-gray-500">暂无数据</p>
         </div>
       )}
@@ -198,7 +198,7 @@ export default function VideoBar() {
                 trigger="hover"
                 placement="bottom"
                 content={getPopoverContent(item.id)}
-                className="right-0 w-64 -translate-x-0"
+                className="right-0 w-52 -translate-x-0"
               >
                 <div className="h-10 w-10 cursor-pointer overflow-hidden rounded-full">
                   <img

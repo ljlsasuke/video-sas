@@ -274,7 +274,7 @@ export default function Upload() {
                 {isCurrentUser && (
                   <div className="cursor-pointer text-[#61666d]">
                     <Popover
-                      className="min-w-32 px-0"
+                      className="px-0"
                       content={
                         <>
                           <ul className="w-32 py-1">
