@@ -1,7 +1,10 @@
 import QUERY_KEYS from '@/constants/queryKeys'
 import { getWatchLater } from '@/services'
+import { useAuthStore } from '@/store/authStore'
 import { useQuery } from '@tanstack/react-query'
 export default function useWatchLater(limit = 5, offset = 0) {
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
+  if (!isLoggedIn) return null
   return useQuery({
     queryKey: QUERY_KEYS.WATCH_LATER(limit, offset),
     queryFn: () => getWatchLater(offset, limit),
