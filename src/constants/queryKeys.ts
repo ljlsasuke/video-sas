@@ -14,7 +14,7 @@ const QUERY_KEYS = {
     'watchLater',
     { limit, offset },
   ],
-  WATch_HISTORY: (limit: number, offset: number) => [
+  WATCH_HISTORY: (limit: number, offset: number) => [
     'watchHistory',
     { limit, offset },
   ],

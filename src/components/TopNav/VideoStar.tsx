@@ -6,22 +6,14 @@ import useWatchLater from '@/hooks/useWatchLater'
 import { useAuthStore } from '@/store/authStore'
 import type { CollectionItem, WatchHistoryItem, WatchLaterItem } from '@/type'
 import { formatDate, FormatType } from '@/utils/format'
-import { useState } from 'react'
 import { history } from 'umi'
-import Login from './Login'
-import Popover from './Popover'
-
-export default function TopNav() {
+import Popover from '../Popover'
+export default function VideoBar() {
   type ListItem = {
     id: number // 这个id应该我随便给就行了,让头像的是 0 其他不重复
     name: string
     icon: string
   }
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
-  // 使用选择器模式，只订阅需要的状态
-  const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
-  const userInfo = useAuthStore((state) => state.userInfo)
-  const clearAuthState = useAuthStore((state) => state.clearAuthState)
   const list: ListItem[] = [
     {
       id: 4,
@@ -44,36 +36,17 @@ export default function TopNav() {
       icon: 'none', //头像木有icon
     },
   ]
-
-  const handlerESC = (event: KeyboardEvent) => {
-    if (event.code === 'Escape') {
-      handleCloseModal()
-    }
-  }
   const onClickItem = (item: ListItem) => {
     if (item.id === 7) {
     } else if (item.id === 4) {
     } else if (item.id === 9) {
     }
   }
-  const handleLoginClick = () => {
-    setIsLoginModalOpen(true)
-    window.addEventListener('keyup', handlerESC)
-  }
-  const handleCloseModal = () => {
-    setIsLoginModalOpen(false)
-    window.removeEventListener('keyup', handlerESC)
-  }
-  const [keyword, setKeyword] = useState('')
-  const handleToSearch = () => {
-    if (keyword.trim() === '') {
-      return
-    }
-    history.push(`/search?keyword=${keyword}`)
-  }
   const Collection = useCollections()
   const WatchLater = useWatchLater()
   const WatchHistory = useWatchHistory()
+  const userInfo = useAuthStore((state) => state.userInfo)
+  const clearAuthState = useAuthStore((state) => state.clearAuthState)
   // 渲染用户头像弹出内容
   const renderUserPopoverContent = () => (
     <>
@@ -214,98 +187,45 @@ export default function TopNav() {
 
     return null
   }
-
-  return (
-    <div className="fixed z-10 flex h-tn w-5/6 items-center justify-between">
-      <div
-        className="h-10 w-10 cursor-pointer"
-        onClick={() => history.push('/')}
-      >
-        <SasIcon
-          name="logo"
-          className="h-full w-full scale-75 fill-primary transition duration-200 ease-in-out hover:scale-100"
-        ></SasIcon>
-      </div>
-      <div className="relative mx-4 h-10 w-1/3 flex-shrink-0">
-        <input
-          type="text"
-          value={keyword}
-          onChange={(e) => {
-            setKeyword(e.target.value)
-          }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              handleToSearch()
-            }
-          }}
-          className="my-input-shadow h-10 w-full rounded-full px-3 py-1 ring-opacity-50 transition duration-200 ease-in-out hover:border-gray-400 focus:rounded-2xl focus:border-primary focus:outline-none focus:ring focus:ring-primary"
-        />
-        <div
-          className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
-          onClick={handleToSearch}
-        >
-          <SasIcon name="search" width={24} height={24}></SasIcon>
-        </div>
-      </div>
-      <ul className="flex items-center gap-2">
-        {isLoggedIn ? (
-          list.map((item) => {
-            if (item.id === 0) {
-              // 用户个人信息这些数据就直接在登录之后获取然后存在状态管理库里面
-              return (
-                <li key={item.id} className="ml-2">
-                  <Popover
-                    trigger="hover"
-                    placement="bottom"
-                    content={getPopoverContent(item.id)}
-                    className="right-0 w-64 -translate-x-0"
-                  >
-                    <div className="h-10 w-10 cursor-pointer overflow-hidden rounded-full">
-                      <img
-                        src={userInfo?.avatar || defaultAvatar}
-                        className="h-full w-full object-cover"
-                        alt="用户头像"
-                      />
-                    </div>
-                  </Popover>
-                </li>
-              )
-            }
-            return (
-              <li key={item.id}>
-                <Popover
-                  trigger="hover"
-                  placement="bottom"
-                  title={item.name}
-                  content={getPopoverContent(item.id)}
-                  className="right-0 w-[400px] -translate-x-0"
-                >
-                  <div
-                    className="cursor-pointer rounded-full border-black p-2 transition-colors duration-200 hover:bg-[#d7d7dd]"
-                    onClick={() => onClickItem(item)}
-                  >
-                    <SasIcon name={item.icon} width={24} height={24}></SasIcon>
-                  </div>
-                </Popover>
-              </li>
-            )
-          })
-        ) : (
-          <li
-            onClick={handleLoginClick}
-            className="flex cursor-pointer items-center rounded-full px-4 py-2 text-primary transition duration-200 ease-in-out hover:bg-primary hover:text-white"
+  return list.map((item) => {
+    if (item.id === 0) {
+      // 用户个人信息这些数据就直接在登录之后获取然后存在状态管理库里面
+      return (
+        <li key={item.id} className="ml-2">
+          <Popover
+            trigger="hover"
+            placement="bottom"
+            content={getPopoverContent(item.id)}
+            className="right-0 w-64 -translate-x-0"
           >
-            <SasIcon
-              name="user-no"
-              width={22}
-              height={22}
-              className="mr-1"
-            ></SasIcon>
-            登录
-          </li>
-        )}
-      </ul>
-      {isLoginModalOpen && <Login onClose={handleCloseModal}></Login>}
-    </div>
-  )
+            <div className="h-10 w-10 cursor-pointer overflow-hidden rounded-full">
+              <img
+                src={userInfo?.avatar || defaultAvatar}
+                className="h-full w-full object-cover"
+                alt="用户头像"
+              />
+            </div>
+          </Popover>
+        </li>
+      )
+    }
+    return (
+      <li key={item.id}>
+        <Popover
+          trigger="hover"
+          placement="bottom"
+          title={item.name}
+          content={getPopoverContent(item.id)}
+          className="right-0 w-[400px] -translate-x-0"
+        >
+          <div
+            className="cursor-pointer rounded-full border-black p-2 transition-colors duration-200 hover:bg-[#d7d7dd]"
+            onClick={() => onClickItem(item)}
+          >
+            <SasIcon name={item.icon} width={24} height={24}></SasIcon>
+          </div>
+        </Popover>
+      </li>
+    )
+  })
 }

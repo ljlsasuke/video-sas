@@ -175,13 +175,24 @@ export default function video() {
         {/* 上传者信息 */}
         <div className="border-b p-4">
           <div className="flex items-center space-x-3">
-            <img
-              src={videoDetail?.author.avatar}
-              className="h-12 w-12 rounded-full"
-              alt="上传者头像"
-            />
+            <div
+              className="h-12 w-12 cursor-pointer overflow-hidden rounded-full"
+              onClick={() => history.push(`/space/${videoDetail?.author.id}`)}
+            >
+              <img
+                src={videoDetail?.author.avatar}
+                className="h-full w-full object-cover"
+                alt="上传者头像"
+              />
+            </div>
+
             <div>
-              <h3 className="text-primary">{videoDetail?.author.username}</h3>
+              <h3
+                onClick={() => history.push(`/space/${videoDetail?.author.id}`)}
+                className="cursor-pointer text-primary"
+              >
+                {videoDetail?.author.username}
+              </h3>
               <p className="text-sm text-gray-500">
                 {videoDetail?.author.description}
               </p>

@@ -130,7 +130,7 @@ export default function HomePage() {
                     <img
                       src={item.author.avatar}
                       alt={item.author.username}
-                      className="mr-2 h-8 w-8 rounded-full"
+                      className="mr-2 h-8 w-8 rounded-full object-cover"
                     />
                     <div>
                       <div className="text-gray-500">{item.description}</div>
