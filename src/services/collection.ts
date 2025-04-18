@@ -43,5 +43,5 @@ export const toggleCollection = async (
 }
 
 export const removeCollectionBySelfId = async (id: number) => {
-  return await $delete<any>(`/collections/${id}`)
+  return await $delete<any>(`/collections/${id}/`)
 }

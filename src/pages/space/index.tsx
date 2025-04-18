@@ -61,10 +61,10 @@ export default function Space() {
   }
   const RouterMap: RouterMapT[] = [
     {
-      name: '投稿管理',
+      name: '投稿列表',
       routePath: 'upload',
       icon: 'video-library',
-      isShow: isCurrentUser,
+      isShow: true,
     },
     {
       name: '收藏视频',
@@ -146,7 +146,7 @@ export default function Space() {
                 </button>
                 <button
                   onClick={onConfirm}
-                  className="rounded bg-blue-500 px-4 py-2 text-white"
+                  className="rounded bg-primary px-4 py-2 text-white"
                 >
                   确认
                 </button>

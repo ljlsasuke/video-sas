@@ -46,3 +46,13 @@ export type WatchHistoryResT = LimitOffsetStructure<WatchHistoryItem[]>
 export type CollectionsResT = PageNumberStructure<CollectionItem[]>
 
 export type UploadResT = ResponseStructure<{ url: string }>
+
+export interface NewVideoDataT {
+  filePath: string //视频地址
+  cover: string //封面地址
+  description: string //标题
+  tags: string[] //标签
+}
+export type NewVideoResT = ResponseStructure<VideoItem>
+
+export type VideoIsUserUploadResT = PageNumberStructure<VideoItem[]>

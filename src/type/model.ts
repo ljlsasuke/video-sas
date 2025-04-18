@@ -22,7 +22,6 @@ export interface Tag {
 
 export interface VideoDetail extends VideoItem {
   // 进入video页面用到的属性
-  author: UserInfo
   tags: Tag[]
   isCollected: boolean
   filePath: string

@@ -33,7 +33,9 @@ export default function Login({ onClose }: LoginProps) {
     })
       .then((data) => {
         setAuthState(data)
-        message.success('注册成功,' + data.userInfo.username)
+        message.success(
+          '注册成功,' + data.userInfo.username + ', 已自动为您登录',
+        )
       })
       .catch((err: string) => {
         message.error(err)
