@@ -198,7 +198,7 @@ export default function VideoBar() {
                 trigger="hover"
                 placement="bottom"
                 content={getPopoverContent(item.id)}
-                className="right-0 w-52 -translate-x-0"
+                className="right-0 min-w-56 -translate-x-0"
               >
                 <div className="h-10 w-10 cursor-pointer overflow-hidden rounded-full">
                   <img

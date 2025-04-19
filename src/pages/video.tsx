@@ -3,6 +3,7 @@ import SasIcon from '@/components/SasIcon'
 import { getVideoDetail, toggleCollection } from '@/services'
 import { useAuthStore } from '@/store/authStore'
 import type { VideoDetail } from '@/type'
+import { useQueryClient } from '@tanstack/react-query'
 import { produce } from 'immer'
 import { useEffect, useRef, useState } from 'react'
 import { history, Link, useParams } from 'umi'
@@ -16,6 +17,7 @@ export default function video() {
   const playerRef = useRef<any>(null) // 添加 player 的引用
   const [videoDetail, setVideoDetail] = useState<VideoDetail>()
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
+  const queryClient = useQueryClient()
   const fetchVideoDetail = () => {
     if (!bv) return message.error('未传入BV号！')
     getVideoDetail(bv)
@@ -113,6 +115,12 @@ export default function video() {
           draft.isCollected = !draft.isCollected
         }),
       )
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const [key, params] = query.queryKey as [string, Record<string, any>]
+          return key === 'collections' && !('userId' in params)
+        },
+      })
     } catch (error) {
       message.error(String(error))
     }

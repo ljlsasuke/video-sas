@@ -3,7 +3,7 @@ import { getCollections } from '@/services'
 import { useQuery } from '@tanstack/react-query'
 export default function useCollections(
   page = 1,
-  pageSize = 10,
+  pageSize = 9,
   userId?: number,
 ) {
   return useQuery({

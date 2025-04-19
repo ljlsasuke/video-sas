@@ -1,5 +1,6 @@
 import Dialog from '@/components/Dialog'
 import message from '@/components/Message'
+import Pagination from '@/components/Pagination'
 import Popover from '@/components/Popover'
 import SasIcon from '@/components/SasIcon'
 import { TagInput } from '@/components/TagInput'
@@ -26,16 +27,24 @@ export default function Upload() {
     isCurrentUser: boolean
   }>()
   const [uploadVideoList, setUploadVideoList] = useState<VideoItem[]>([])
-  const fetchVideoList = () => {
-    return getVideoIsUserCreate(Number(userId)).then((data) => {
-      setUploadVideoList(data.results)
-    })
+  const [pageNo, setPageNo] = useState(1)
+  const [total, setTotal] = useState(0)
+  // 我想在还不想设置动态的pageSize
+  const defaultPageSize = 10
+  const fetchVideoList = (pageNo: number, pageSize: number) => {
+    return getVideoIsUserCreate(Number(userId), pageNo, pageSize).then(
+      (data) => {
+        setPageNo(data.page)
+        setTotal(data.total)
+        setUploadVideoList(data.results)
+      },
+    )
   }
   const deleteVideo = async (bv: string) => {
     return deleteVideoApi(bv)
       .then(() => {
         message.success('删除成功！')
-        return fetchVideoList()
+        return fetchVideoList(pageNo, defaultPageSize)
       })
       .catch((err) => {
         message.error(err)
@@ -56,8 +65,8 @@ export default function Upload() {
     },
   ]
   useEffect(() => {
-    fetchVideoList()
-  }, [])
+    fetchVideoList(pageNo, defaultPageSize)
+  }, [userId])
   // 本来准备只有点击取消按钮才会清空输入状态，直接点击 x 关闭Dialog不会清空的
   // 但是发现 目前的upload组件无法回归原来的状态（因为我们只拿到了File,没有previewUrl ）
   // 所以这个功能以后再说
@@ -120,7 +129,7 @@ export default function Upload() {
         console.log(newVideo)
         message.success('视频投稿成功！')
         // 由于后面要做分页所以这里用重新请求，不然可以手动把返回的 newVideo 插入到列表中
-        return fetchVideoList()
+        return fetchVideoList(pageNo, defaultPageSize)
       })
       .catch((err) => {
         message.error(err)
@@ -313,6 +322,18 @@ export default function Upload() {
             </li>
           ))}
         </ul>
+        <div className="mt-4">
+          <Pagination
+            current={pageNo}
+            total={total}
+            pageSize={defaultPageSize}
+            onChange={(page, pageSize) => {
+              fetchVideoList(page, pageSize)
+            }}
+            showTotal={true}
+            showNumberJump={true}
+          ></Pagination>
+        </div>
       </div>
     </div>
   )

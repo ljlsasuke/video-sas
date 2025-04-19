@@ -1,32 +1,56 @@
+import Pagination from '@/components/Pagination'
 import Popover from '@/components/Popover'
 import SasIcon from '@/components/SasIcon'
 import useCollections from '@/hooks/useCollections'
 import { removeCollectionBySelfId } from '@/services'
 import { formatDate, FormatType } from '@/utils/format'
-import { useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import { useEffect, useState } from 'react'
 import { history, useOutletContext } from 'umi'
 export default function Collection() {
   const [pageNo, setPageNo] = useState(1)
+  const [total, setTotal] = useState(0)
+  const defaultPageSize = 3
   const { userId, isCurrentUser } = useOutletContext<{
     userId: string
     isCurrentUser: boolean
   }>()
 
+  const queryClient = useQueryClient()
+  // 这里的 React Query 出现了一点问题。
+  // 现在我觉得所有个人空间的query都要依赖 userId才合理
+  // todo: 后续对 useCollections 进行修改
+  // todo: 而且删除一个投稿之后，也可能造成后端的收藏已经没了但是前端没刷新的问题
   const Collections = useCollections(
     pageNo,
-    10,
+    defaultPageSize,
     // 如果是当前用户，就不要传递这个id，后端通过token来获取当前用户的收藏列表
     // 为了和TopNav命中相同缓存
     isCurrentUser ? undefined : Number(userId),
   )
+  useEffect(() => {
+    if (!Collections.data?.total) return
+    setTotal(Collections.data?.total)
+  }, [Collections.data?.total])
+  const cancelCollect = async (id: number) => {
+    let res = await removeCollectionBySelfId(id)
+    // Collections.refetch()
+    // 使得对应用户的缓存失效（所有pageNo和pageSize）
+    queryClient.invalidateQueries({
+      predicate: (query) => {
+        const [key, params] = query.queryKey as [string, Record<string, any>]
+        if (key !== 'collections') return false
+        if (isCurrentUser) {
+          return !('userId' in params)
+        }
+        return 'userId' in params && params.userId === Number(userId)
+      },
+    })
+  }
   const videoOptItems = [
     {
       opt: '取消收藏',
-      callback: (id: number) => {
-        removeCollectionBySelfId(id).then((res) => {
-          Collections.refetch()
-        })
-      },
+      callback: cancelCollect,
     },
   ]
   return (
@@ -120,6 +144,18 @@ export default function Collection() {
           ))}
         </ul>
         {/* 这里放一个分页组件 */}
+        <div className="mt-4">
+          <Pagination
+            current={pageNo}
+            total={total}
+            pageSize={defaultPageSize}
+            onChange={(page) => {
+              setPageNo(page)
+            }}
+            showTotal={true}
+            showNumberJump={true}
+          ></Pagination>
+        </div>
       </div>
     </div>
   )
