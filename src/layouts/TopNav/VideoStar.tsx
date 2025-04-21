@@ -1,4 +1,5 @@
 import defaultAvatar from '@/assets/icons/user-no.svg'
+import Popover from '@/components/Popover'
 import SasIcon from '@/components/SasIcon'
 import useCollections from '@/hooks/useCollections'
 import useWatchHistory from '@/hooks/useWatchHistory'
@@ -7,7 +8,6 @@ import { useAuthStore } from '@/store/authStore'
 import type { CollectionItem, WatchHistoryItem, WatchLaterItem } from '@/type'
 import { formatDate, FormatType } from '@/utils/format'
 import { history } from 'umi'
-import Popover from '../Popover'
 export default function VideoBar() {
   type ListItem = {
     id: number // 这个id应该我随便给就行了,让头像的是 0 其他不重复

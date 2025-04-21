@@ -1,6 +1,6 @@
-import TopNav from '@/components/TopNav'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Outlet } from 'umi'
+import TopNav from './TopNav'
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

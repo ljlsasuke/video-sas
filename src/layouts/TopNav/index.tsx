@@ -1,8 +1,8 @@
+import Login from '@/components/Login'
+import SasIcon from '@/components/SasIcon'
 import { useAuthStore } from '@/store/authStore'
 import { useState } from 'react'
 import { history } from 'umi'
-import Login from '../Login'
-import SasIcon from '../SasIcon'
 import VideoStar from './VideoStar'
 
 export default function TopNav() {
