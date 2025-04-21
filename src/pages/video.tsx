@@ -101,7 +101,12 @@ export default function video() {
   // 监听 videoDetail 变化，更新视频源
   useEffect(() => {
     if (playerRef.current && videoDetail?.filePath) {
-      playerRef.current.src({ src: videoDetail.filePath, type: 'video/mp4' })
+      // 根据文件扩展名判断类型
+      const isM3U8 = videoDetail.filePath.endsWith('.m3u8')
+      playerRef.current.src({
+        src: videoDetail.filePath,
+        type: isM3U8 ? 'application/x-mpegURL' : 'video/mp4',
+      })
       playerRef.current.el().focus()
     }
   }, [videoDetail?.filePath])
