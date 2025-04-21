@@ -9,6 +9,8 @@ export const login = async (data: { username: string; password: string }) => {
 export const register = async (data: {
   username: string
   password: string
+  tags: string[]
+  description: string
 }) => {
   let res = await $post<LoginResT>('/register/', data)
   return res.data

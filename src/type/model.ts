@@ -13,6 +13,7 @@ export interface UserInfo {
   username: string
   avatar: string
   description: string
+  interestedTags: Tag[]
 }
 
 export interface Tag {

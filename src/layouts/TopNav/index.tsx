@@ -1,4 +1,4 @@
-import Login from '@/components/Login'
+import Login from '@/components/Auth/Login'
 import SasIcon from '@/components/SasIcon'
 import { useAuthStore } from '@/store/authStore'
 import { useState } from 'react'
@@ -7,7 +7,6 @@ import VideoStar from './VideoStar'
 
 export default function TopNav() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
-  // 使用选择器模式，只订阅需要的状态
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
 
   const handlerESC = (event: KeyboardEvent) => {
@@ -81,7 +80,8 @@ export default function TopNav() {
           登录
         </div>
       )}
-      {isLoginModalOpen && <Login onClose={handleCloseModal}></Login>}
+      {/* 传递 isOpen 状态 */}
+      <Login isOpen={isLoginModalOpen} onClose={handleCloseModal}></Login>
     </div>
   )
 }
