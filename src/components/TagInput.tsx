@@ -36,13 +36,26 @@ export function TagInput({
       console.warn(`最多只能添加 ${maxTags} 个标签`)
       return
     }
-    if (!tags.includes(tagToAdd)) {
-      onChange([...tags, tagToAdd])
-      setInputValue('')
-    } else {
-      console.warn(`标签 "${tagToAdd}" 已存在`)
-      setInputValue('')
+    // 拆分输入的字符串，提取以 # 开头的标签
+    const newTags = tagToAdd
+      .split('#')
+      .filter((tag) => tag.trim() !== '')
+      .map((tag) => tag.trim())
+    console.log(newTags, '@@')
+    let updatedTags = [...tags]
+    for (const tag of newTags) {
+      if (maxTags && updatedTags.length >= maxTags) {
+        console.warn(`最多只能添加 ${maxTags} 个标签`)
+        break
+      }
+      if (!updatedTags.includes(tag)) {
+        updatedTags.push(tag)
+      } else {
+        console.warn(`标签 "${tag}" 已存在`)
+      }
     }
+    onChange(updatedTags)
+    setInputValue('')
   }
 
   const removeTag = (tagToRemove: string) => {

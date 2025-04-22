@@ -30,7 +30,7 @@ export default function Upload() {
   const [pageNo, setPageNo] = useState(1)
   const [total, setTotal] = useState(0)
   // 我想在还不想设置动态的pageSize
-  const defaultPageSize = 10
+  const defaultPageSize = 12
   const fetchVideoList = (pageNo: number, pageSize: number) => {
     return getVideoIsUserCreate(Number(userId), pageNo, pageSize).then(
       (data) => {
@@ -170,7 +170,7 @@ export default function Upload() {
         <div className="flex flex-col justify-between">
           <div>
             <h1 className="text-xl">投稿列表</h1>
-            <div className="text-sm text-gray-400">视频数：{50}</div>
+            <div className="text-sm text-gray-400">视频数：{total}</div>
           </div>
           <div className="mt-2 flex gap-3 text-sm">
             {isCurrentUser && (
@@ -322,7 +322,7 @@ export default function Upload() {
             </li>
           ))}
         </ul>
-        <div className="mt-4">
+        <div className="mt-8">
           <Pagination
             current={pageNo}
             total={total}
