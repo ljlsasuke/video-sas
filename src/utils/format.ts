@@ -19,7 +19,7 @@ export enum FormatType {
   later = 'later', //几天前,几个星期前，几月前，几年这种
 }
 export function formatDate(
-  date: string,
+  date: string | number,
   type: FormatType = FormatType.YMD,
 ): string {
   const dateObj = new Date(date)

@@ -1,7 +1,8 @@
 import message from '@/components/Message'
-import { getVideoList } from '@/services'
+import { getRecommendList } from '@/services'
 import { useAuthStore } from '@/store/authStore'
 import type { VideoItem } from '@/type/model'
+import { formatDate, formatPlayCount } from '@/utils/format'
 import { useEffect, useState } from 'react'
 import { history } from 'umi'
 export default function HomePage() {
@@ -16,10 +17,10 @@ export default function HomePage() {
           id: 1,
           name: '个性推荐',
         },
-        {
-          id: 2,
-          name: '正在关注',
-        },
+        // {
+        //   id: 2,
+        //   name: '正在关注',
+        // },
         {
           id: 3,
           name: '热门排行',
@@ -33,12 +34,45 @@ export default function HomePage() {
       ]
   const [videoList, setVideoList] = useState<VideoItem[]>([])
   const [activeIndex, setActiveIndex] = useState<number>(0)
+  const [limit, setLimit] = useState<number>(10)
+  const [offset, setOffset] = useState<number>(0)
+  useEffect(() => {
+    const handleScroll = () => {
+      // 计算滚动到底部的条件
+      const { scrollTop, scrollHeight, clientHeight } = document.documentElement
+      if (scrollTop + clientHeight >= scrollHeight - 50) {
+        // 50 是一个缓冲值，可根据需求调整
+        setOffset((prevOffset) => prevOffset + limit)
+      }
+    }
+    // 定义节流函数
+    const throttle = (func: () => void, delay: number) => {
+      let lastCall = 0
+      return function () {
+        const now = new Date().getTime()
+        if (now - lastCall >= delay) {
+          func()
+          lastCall = now
+        }
+      }
+    }
+    const throttledHandleScroll = throttle(handleScroll, 200)
+    // 添加滚动事件监听
+    window.addEventListener('scroll', throttledHandleScroll)
 
+    // 清理函数，组件卸载时移除事件监听
+    return () => {
+      window.removeEventListener('scroll', throttledHandleScroll)
+    }
+  }, [limit])
   const fetchVideoList = () => {
     // leftList里有个标识，发请求的时候通过这个表示请求不同的接口或接口内部做处理
-    getVideoList()
+    getRecommendList(offset, limit)
       .then((data) => {
-        setVideoList(data)
+        setLimit(data.limit)
+        setVideoList((prevList) => {
+          return [...prevList, ...data.results]
+        })
       })
       .catch((err) => {
         message.error(err)
@@ -52,7 +86,7 @@ export default function HomePage() {
   useEffect(() => {
     // 初始获取视频列表
     fetchVideoList()
-  }, [activeIndex, isLoggedIn])
+  }, [activeIndex, isLoggedIn, offset, limit])
   return (
     <div className="flex flex-col">
       <div className="flex w-full p-3">
@@ -135,8 +169,12 @@ export default function HomePage() {
                     <div>
                       <div className="text-gray-500">{item.description}</div>
                       <div className="flex items-center text-gray-500">
-                        <span className="mr-2">{item.playCount}播放</span>
-                        <span className="mr-2">{item.uploadTime}</span>
+                        <span className="mr-2">
+                          {formatPlayCount(item.playCount)}播放
+                        </span>
+                        <span className="mr-2">
+                          {formatDate(item.uploadTime)}
+                        </span>
                         <span>{item.author.username}</span>
                       </div>
                     </div>

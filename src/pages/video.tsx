@@ -3,6 +3,7 @@ import SasIcon from '@/components/SasIcon'
 import { getVideoDetail, toggleCollection } from '@/services'
 import { useAuthStore } from '@/store/authStore'
 import type { VideoDetail } from '@/type'
+import { formatDate, formatPlayCount, FormatType } from '@/utils/format'
 import { useQueryClient } from '@tanstack/react-query'
 import { produce } from 'immer'
 import { useEffect, useRef, useState } from 'react'
@@ -141,8 +142,15 @@ export default function video() {
           <h2>
             <div className="flex text-sm text-gray-400">
               <SasIcon name="play" className="h-5 w-5 fill-gray-400"></SasIcon>
-              <span className="ml-1 mr-3">{videoDetail?.playCount}</span>
-              <span>{videoDetail?.uploadTime}</span>
+              <span className="ml-1 mr-3">
+                {formatPlayCount(videoDetail?.playCount ?? 0)}
+              </span>
+              <span>
+                {formatDate(
+                  videoDetail?.uploadTime ?? Date.now(),
+                  FormatType.YMDHMS,
+                )}
+              </span>
             </div>
           </h2>
         </div>
@@ -238,7 +246,9 @@ export default function video() {
                 </div>
                 <div className="flex text-gray-500">
                   <SasIcon name="play"></SasIcon>
-                  <p className="ml-1 text-sm">{item.playCount}</p>
+                  <p className="ml-1 text-sm">
+                    {formatPlayCount(item.playCount)}
+                  </p>
                 </div>
               </div>
             </div>

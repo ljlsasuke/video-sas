@@ -10,7 +10,7 @@ import { history, useOutletContext } from 'umi'
 export default function Collection() {
   const [pageNo, setPageNo] = useState(1)
   const [total, setTotal] = useState(0)
-  const defaultPageSize = 3
+  const defaultPageSize = 12
   const { userId, isCurrentUser } = useOutletContext<{
     userId: string
     isCurrentUser: boolean
