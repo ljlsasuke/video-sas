@@ -38,6 +38,8 @@ export type UserInfoResT = ResponseStructure<UserInfo>
 
 export type recommendedResT = LimitOffsetStructure<VideoItem[]>
 
+export type SearchResultResT = PageNumberStructure<VideoItem[]>
+
 export type LoginResT = ResponseStructure<LoginResData>
 export type VideoDetailResT = ResponseStructure<VideoDetail>
 

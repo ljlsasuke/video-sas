@@ -1,4 +1,5 @@
 import Login from '@/components/Auth/Login'
+import message from '@/components/Message'
 import SasIcon from '@/components/SasIcon'
 import { useAuthStore } from '@/store/authStore'
 import { useState } from 'react'
@@ -26,7 +27,7 @@ export default function TopNav() {
   const [keyword, setKeyword] = useState('')
   const handleToSearch = () => {
     if (keyword.trim() === '') {
-      return
+      return message.error('关键词不能为空！')
     }
     history.push(`/search?keyword=${keyword}`)
   }
