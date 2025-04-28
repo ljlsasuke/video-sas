@@ -11,5 +11,5 @@ export const getWatchHistory = async (
 }
 
 export const removeWatchHistory = async (id: number) => {
-  let res = await $delete<any>(`/watch-history/${id}`)
+  let res = await $delete<any>(`/watch-history/${id}/`)
 }

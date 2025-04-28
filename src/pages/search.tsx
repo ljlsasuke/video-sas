@@ -41,7 +41,7 @@ export default function search() {
     }
   }
   useEffect(() => {
-    // todo: 涉及到分页的时候还有别的参数，这时候api传参还挺麻烦的，需要考虑如何优化代码（柯里化？）
+    // todo: 涉及到分页的时候还有别的参数，这时候api传参还挺麻烦的，需要考虑如何 优化 （柯里化？）
     fetchSearchResult(tag, keyword, pageNo)
   }, [tag, keyword, pageNo, defaultPageSize])
   return (
