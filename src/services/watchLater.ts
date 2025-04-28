@@ -16,6 +16,17 @@ export const removeWatchLaterByBV = async (bv: string) => {
   })
 }
 
+export const toggleWatchLater = async (
+  videoUrl: string,
+  isInWatchLater: boolean,
+) => {
+  if (isInWatchLater) {
+    await removeWatchLaterByBV(videoUrl)
+  } else {
+    await addWatchLater(videoUrl)
+  }
+}
+
 export const removeWatchLaterBySelfId = async (id: number) => {
-  let res = await $delete<any>(`/watch-later/${id}`)
+  let res = await $delete<any>(`/watch-later/${id}/`)
 }

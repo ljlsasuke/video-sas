@@ -25,6 +25,7 @@ export interface VideoDetail extends VideoItem {
   // 进入video页面用到的属性
   tags: Tag[]
   isCollected: boolean
+  isInWatchLater: boolean
   filePath: string
   recommended: VideoItem[]
 }

@@ -1,6 +1,6 @@
 import message from '@/components/Message'
 import SasIcon from '@/components/SasIcon'
-import { getVideoDetail, toggleCollection } from '@/services'
+import { getVideoDetail, toggleCollection, toggleWatchLater } from '@/services'
 import { useAuthStore } from '@/store/authStore'
 import type { VideoDetail } from '@/type'
 import { formatDate, formatPlayCount, FormatType } from '@/utils/format'
@@ -131,6 +131,25 @@ export default function video() {
       message.error(String(error))
     }
   }
+  const onWatcherLater = async () => {
+    if (videoDetail?.isInWatchLater === undefined) return
+    try {
+      await toggleWatchLater(videoDetail.url, videoDetail.isInWatchLater)
+      setVideoDetail(
+        produce(videoDetail, (draft) => {
+          draft.isInWatchLater = !draft.isInWatchLater
+        }),
+      )
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const [key, params] = query.queryKey as [string, Record<string, any>]
+          return key === 'watchLater'
+        },
+      })
+    } catch (error) {
+      message.error(String(error))
+    }
+  }
   return (
     <div className="flex h-full">
       {/* 左侧视频播放区域 */}
@@ -164,7 +183,7 @@ export default function video() {
           </div>
         </div>
         {/* 功能列表，添加到收藏，稍后再看之类的 */}
-        <ul className="pb-3">
+        <ul className="flex gap-x-3 pb-3">
           <li className="cursor-pointer" onClick={onCollect}>
             <SasIcon
               name="star-filled"
@@ -172,6 +191,18 @@ export default function video() {
               height={26}
               className={
                 videoDetail?.isCollected
+                  ? 'text-primary'
+                  : 'text-[#61666d] hover:text-primary'
+              }
+            ></SasIcon>
+          </li>
+          <li className="cursor-pointer" onClick={onWatcherLater}>
+            <SasIcon
+              name="carplay"
+              width={26}
+              height={26}
+              className={
+                videoDetail?.isInWatchLater
                   ? 'text-primary'
                   : 'text-[#61666d] hover:text-primary'
               }

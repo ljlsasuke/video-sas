@@ -25,6 +25,7 @@ export default function Collection() {
     pageNo,
     defaultPageSize,
     // 如果是当前用户，就不要传递这个id，后端通过token来获取当前用户的收藏列表
+    // todo: 改掉这个逻辑，所有人强制使用userId
     // 为了和TopNav命中相同缓存
     isCurrentUser ? undefined : Number(userId),
   )
