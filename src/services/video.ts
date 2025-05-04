@@ -1,4 +1,5 @@
 import type {
+  HotVideoListResT,
   NewVideoDataT,
   NewVideoResT,
   recommendedResT,
@@ -8,6 +9,13 @@ import type {
 import { $delete, $get, $post } from '@/utils/http'
 export const getRecommendList = async (offset = 0, limit = 10) => {
   let res = await $get<recommendedResT>('/videos/recommended/', {
+    params: { offset, limit },
+  })
+  return res.data
+}
+
+export const getHotList = async (offset = 0, limit = 10) => {
+  let res = await $get<HotVideoListResT>('/videos/hot/', {
     params: { offset, limit },
   })
   return res.data

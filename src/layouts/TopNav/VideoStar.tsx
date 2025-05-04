@@ -64,7 +64,7 @@ export default function VideoBar() {
         </div>
       </div>
 
-      <div className="mt-3 grid grid-cols-3 gap-2 border-t border-gray-100 pt-3">
+      {/* <div className="mt-3 grid grid-cols-3 gap-2 border-t border-gray-100 pt-3">
         <div className="flex flex-col items-center">
           <span className="font-bold">450</span>
           <span className="text-xs text-gray-500">关注</span>
@@ -77,7 +77,7 @@ export default function VideoBar() {
           <span className="font-bold">11</span>
           <span className="text-xs text-gray-500">动态</span>
         </div>
-      </div>
+      </div> */}
 
       <div className="mt-3 flex flex-col gap-2">
         <div
