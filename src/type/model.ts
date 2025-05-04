@@ -5,6 +5,7 @@ export interface VideoItem {
   playCount: number | string //具体数字或者格式化后的数字
   uploadTime: string // 时间戳？
   description: string // 视频名字
+  hasCollected?: boolean
 }
 
 export interface UserInfo {

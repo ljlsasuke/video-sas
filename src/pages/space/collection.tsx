@@ -11,6 +11,7 @@ export default function Collection() {
   const [pageNo, setPageNo] = useState(1)
   const [total, setTotal] = useState(0)
   const defaultPageSize = 12
+  const [cover, setCover] = useState('/fakerImg.jpg')
   const { userId, isCurrentUser } = useOutletContext<{
     userId: string
     isCurrentUser: boolean
@@ -33,6 +34,20 @@ export default function Collection() {
     if (!Collections.data?.total) return
     setTotal(Collections.data?.total)
   }, [Collections.data?.total])
+
+  // 新增：只在 pageNo === 1 且有数据时设置封面图片
+  useEffect(() => {
+    console.log(pageNo, '????')
+    if (
+      pageNo === 1 &&
+      Collections.data?.results &&
+      Collections.data?.results?.length > 0 &&
+      Collections.data.results[0]?.video?.cover
+    ) {
+      setCover(Collections.data.results[0].video.cover)
+    }
+  }, [pageNo, Collections.data?.results])
+
   const cancelCollect = async (id: number) => {
     let res = await removeCollectionBySelfId(id)
     // Collections.refetch()
@@ -54,13 +69,14 @@ export default function Collection() {
       callback: cancelCollect,
     },
   ]
+
   return (
     <div>
       <header className="flex gap-3">
         <div className="h-28 w-48 overflow-hidden rounded-md">
           <img
             className="h-full w-full object-cover"
-            src={Collections?.data?.results[0]?.video.cover ?? '/fakerImg.jpg'}
+            src={cover}
             alt="收藏夹封面"
           />
         </div>

@@ -1,11 +1,12 @@
-import { getHotList, getRecommendList } from '@/services'
+import SasIcon from '@/components/SasIcon'
+import { addWatchLater, getHotList, getRecommendList } from '@/services'
 import { useAuthStore } from '@/store/authStore'
 import type { VideoItem } from '@/type'
 import { formatDate, formatPlayCount } from '@/utils/format'
-import { useInfiniteQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
+import { produce } from 'immer'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { history } from 'umi'
-
 export default function HomePage() {
   type ListItem = {
     id: number
@@ -91,9 +92,8 @@ export default function HomePage() {
     })
 
   // 获取所有视频列表
+  // todo: 这里的类型有点问题，给 useInfiniteQuery 钩子传递的泛型可能不正确，这个组件很多类型问题，都是 useInfiniteQuery 引起的
   const videoList = data?.pages.flatMap((page) => page.results) || []
-  // const videoList = data.results
-  console.log(data, '???')
 
   // 处理标签切换
   const handleTabChange = (index: number) => {
@@ -119,7 +119,36 @@ export default function HomePage() {
     },
     [isFetchingNextPage, fetchNextPage, hasNextPage],
   )
+  const queryClient = useQueryClient()
+  const handleButtonClick = async (e: React.MouseEvent, item: VideoItem) => {
+    e.stopPropagation() // 阻止事件冒泡，防止触发父元素的点击事件
 
+    try {
+      await addWatchLater(item.url)
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const [key, params] = query.queryKey as [string, Record<string, any>]
+          return key === 'watchLater'
+        },
+      })
+    } catch (error) {
+    } finally {
+      queryClient.setQueryData(
+        ['videos', leftList[activeIndex].listType],
+        produce((draft: any) => {
+          if (!draft) return draft
+
+          draft.pages.forEach((page: any) => {
+            page.results.forEach((video: VideoItem) => {
+              if (video.url === item.url) {
+                video.hasCollected = true
+              }
+            })
+          })
+        }),
+      )
+    }
+  }
   return (
     <div className="flex flex-col">
       <div className="flex w-full p-3">
@@ -155,16 +184,25 @@ export default function HomePage() {
                     key={`${item.url}-${index}`}
                     ref={isLastElement ? lastVideoElementRef : null}
                     onClick={() => history.push(`video/${item.url}`)}
-                    className="relative mb-3 w-[calc((33.333333%)-1.25rem)] transform cursor-pointer overflow-hidden transition-transform hover:scale-105"
+                    className="relative mb-3 w-[calc((33.333333%)-1.25rem)] cursor-pointer overflow-hidden"
                   >
-                    <div className="absolute inset-0 z-10 bg-black bg-opacity-0 transition-opacity group-hover:bg-opacity-30"></div>
                     <div className="flex flex-col">
-                      <div className="mb-2 h-48 w-full overflow-hidden rounded-lg">
+                      <div className="group relative mb-2 h-48 w-full overflow-hidden rounded-lg">
                         <img
                           className="w-full object-cover"
                           src={item.cover}
                           alt={item.description}
                         />
+                        <div className="z-5 absolute inset-0 flex items-start justify-end bg-black bg-opacity-50 p-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                          <button
+                            className="rounded bg-black px-1 py-1 text-xs text-white outline-none hover:bg-opacity-80"
+                            onClick={(e) => handleButtonClick(e, item)}
+                          >
+                            <SasIcon
+                              name={!item.hasCollected ? 'carplay' : 'right'}
+                            />
+                          </button>
+                        </div>
                       </div>
 
                       <div className="flex items-center">

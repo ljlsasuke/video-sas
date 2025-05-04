@@ -31,15 +31,18 @@ export default function Upload() {
   const [total, setTotal] = useState(0)
   // 我想在还不想设置动态的pageSize
   const defaultPageSize = 12
+  const [cover, setCover] = useState('/fakerImg.jpg')
   const fetchVideoList = (pageNo: number, pageSize: number) => {
     return getVideoIsUserCreate(Number(userId), pageNo, pageSize).then(
       (data) => {
+        data.page === 1 && setCover(data.results[0].cover)
         setPageNo(data.page)
         setTotal(data.total)
         setUploadVideoList(data.results)
       },
     )
   }
+
   const deleteVideo = async (bv: string) => {
     return deleteVideoApi(bv)
       .then(() => {
@@ -162,10 +165,7 @@ export default function Upload() {
     <div>
       <header className="flex gap-3">
         <div className="h-28 w-48 overflow-hidden rounded-md">
-          <img
-            className="h-full w-full object-cover"
-            src={uploadVideoList[0]?.cover ?? '/fakerImg.jpg'}
-          />
+          <img className="h-full w-full object-cover" src={cover} />
         </div>
         <div className="flex flex-col justify-between">
           <div>
