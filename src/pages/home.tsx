@@ -3,7 +3,7 @@ import { useAuthStore } from '@/store/authStore'
 import type { VideoItem } from '@/type'
 import { formatDate, formatPlayCount } from '@/utils/format'
 import { useInfiniteQuery } from '@tanstack/react-query'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { history } from 'umi'
 
 export default function HomePage() {
@@ -40,6 +40,14 @@ export default function HomePage() {
 
   const [activeIndex, setActiveIndex] = useState(0)
   const limit = 10 // 固定的limit值
+
+  useEffect(() => {
+    // 如果退出登录且 activeIndex 超出了 leftList 范围
+    if (activeIndex >= leftList.length) {
+      setActiveIndex(0) // 重置为第一个选项
+    }
+  }, [isLoggedIn, leftList.length, activeIndex])
+
   type VideoResponseType = {
     limit: number
     offset: number
