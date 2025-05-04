@@ -1,11 +1,12 @@
 import defaultAvatar from '@/assets/icons/user-no.svg'
 import Dialog from '@/components/Dialog'
+import message from '@/components/Message'
 import SasIcon from '@/components/SasIcon'
+import { TagInput } from '@/components/TagInput'
 import { Upload } from '@/components/Upload'
-import { getUserInfo, uploadAvatar } from '@/services'
+import { getUserInfo, updateUserInfo, uploadAvatar } from '@/services'
 import { useAuthStore } from '@/store/authStore'
 import type { UserInfo } from '@/type'
-import { produce } from 'immer'
 import { useEffect, useMemo, useState } from 'react'
 import { history, Outlet, useLocation, useParams } from 'umi'
 export default function Space() {
@@ -30,22 +31,7 @@ export default function Space() {
     // 可能还要做一些清理工作，比如清空上传的文件
     setIsDialogOpen(false)
   }
-  const onConfirm = async () => {
-    if (!selectedFile) return onCloseDialog()
-    uploadAvatar(selectedFile)
-      .then(({ url }) => {
-        setUserInfo(
-          produce((draft) => {
-            if (!draft) return
-            draft.avatar = url
-          }),
-        )
-        uploadUserInfo({ avatar: url })
-      })
-      .finally(() => {
-        onCloseDialog()
-      })
-  }
+
   const activateRoute = useMemo(() => {
     return location.pathname.split('/').at(-1)
   }, [location.pathname])
@@ -87,12 +73,67 @@ export default function Space() {
   ]
 
   const [userInfo, setUserInfo] = useState<UserInfo>()
+  // 下面这几项是表单项
+  const [username, setUsername] = useState('')
+  const [description, setDescription] = useState('')
+  const [tagList, setTagList] = useState<string[]>([])
+
   useEffect(() => {
     if (!userId) return
     getUserInfo(Number(userId)).then((data) => {
       setUserInfo(data)
+      if (isCurrentUser) {
+        setUsername(data.username || '')
+        setDescription(data.description || '')
+        setTagList(data.interestedTags || [])
+      }
     })
   }, [userId])
+
+  const onConfirm = async () => {
+    if (!username.trim()) {
+      message.error('用户名不能为空！')
+      return
+    }
+
+    const updates: Partial<UserInfo> = {
+      username,
+      description,
+      interestedTags: tagList,
+    }
+
+    if (selectedFile) {
+      try {
+        const { url } = await uploadAvatar(selectedFile)
+        updates.avatar = url
+      } catch (error) {
+        message.error('头像上传失败！')
+        return
+      }
+    }
+
+    try {
+      await updateUserInfo(updates)
+      uploadUserInfo(updates)
+      setUserInfo((prev) => ({
+        ...prev!,
+        ...updates,
+      }))
+      message.success('个人信息更新成功！')
+    } catch (error) {
+      message.error('更新失败！')
+    } finally {
+      onCloseDialog()
+    }
+  }
+  const onCancel = () => {
+    onCloseDialog()
+    if (!userInfo) return
+    setUsername(userInfo.username)
+    setDescription(userInfo.description)
+    setTagList(userInfo.interestedTags)
+  }
+
   return (
     <>
       <div className="absolute -top-tn left-0 right-0 -z-10 h-48 w-screen">
@@ -115,7 +156,7 @@ export default function Space() {
                   className="h-full w-full object-cover"
                 />
                 <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
-                  <span className="text-sm text-white">更新头像</span>
+                  <span className="text-sm text-white">更新资料</span>
                 </div>
               </div>
             ) : (
@@ -134,12 +175,12 @@ export default function Space() {
           </div>
           <Dialog
             isOpen={isDialogOpen}
-            title="更新头像"
-            onClose={() => onCloseDialog()}
+            title="编辑个人信息"
+            onClose={onCancel}
             footer={
               <>
                 <button
-                  onClick={onCloseDialog}
+                  onClick={onCancel}
                   className="mr-2 rounded px-4 py-2 text-gray-600"
                 >
                   取消
@@ -153,12 +194,65 @@ export default function Space() {
               </>
             }
           >
-            <Upload
-              value={userInfo?.avatar}
-              type="avatar"
-              maxSize={3}
-              onFileSelected={handleFileSelected}
-            />
+            <div className="mb-4">
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                头像
+              </label>
+              <Upload
+                value={userInfo?.avatar}
+                type="avatar"
+                maxSize={3}
+                onFileSelected={handleFileSelected}
+              />
+            </div>
+            <div className="mb-4">
+              <label
+                htmlFor="username"
+                className="mb-1 block text-sm font-medium text-gray-700"
+              >
+                用户名
+              </label>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="请输入用户名"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+              />
+            </div>
+
+            <div className="mb-4">
+              <label
+                htmlFor="description"
+                className="mb-1 block text-sm font-medium text-gray-700"
+              >
+                个人简介
+              </label>
+              <textarea
+                id="description"
+                name="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="请输入个人简介"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                rows={3}
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                兴趣标签
+              </label>
+              <TagInput
+                tags={tagList}
+                onChange={setTagList}
+                placeholder="输入标签后按 Enter 添加..."
+                maxTags={5}
+              />
+              <p className="mt-1 text-xs text-gray-500">最多可添加 5 个标签</p>
+            </div>
           </Dialog>
         </header>
 

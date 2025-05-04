@@ -37,7 +37,6 @@ export default function Collection() {
 
   // 新增：只在 pageNo === 1 且有数据时设置封面图片
   useEffect(() => {
-    console.log(pageNo, '????')
     if (
       pageNo === 1 &&
       Collections.data?.results &&

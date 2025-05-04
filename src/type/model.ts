@@ -14,7 +14,8 @@ export interface UserInfo {
   username: string
   avatar: string
   description: string
-  interestedTags: Tag[]
+  // interestedTags: Tag[]
+  interestedTags: string[]
 }
 
 export interface Tag {

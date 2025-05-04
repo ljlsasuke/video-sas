@@ -35,7 +35,9 @@ export default function Upload() {
   const fetchVideoList = (pageNo: number, pageSize: number) => {
     return getVideoIsUserCreate(Number(userId), pageNo, pageSize).then(
       (data) => {
-        data.page === 1 && setCover(data.results[0].cover)
+        data.page === 1 &&
+          data.results.length > 0 &&
+          setCover(data.results[0].cover)
         setPageNo(data.page)
         setTotal(data.total)
         setUploadVideoList(data.results)
