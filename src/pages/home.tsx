@@ -1,10 +1,11 @@
-import message from '@/components/Message'
 import { getHotList, getRecommendList } from '@/services'
 import { useAuthStore } from '@/store/authStore'
-import type { VideoItem } from '@/type/model'
+import type { VideoItem } from '@/type'
 import { formatDate, formatPlayCount } from '@/utils/format'
-import { useCallback, useEffect, useState } from 'react'
+import { useInfiniteQuery } from '@tanstack/react-query'
+import { useCallback, useRef, useState } from 'react'
 import { history } from 'umi'
+
 export default function HomePage() {
   type ListItem = {
     id: number
@@ -36,80 +37,81 @@ export default function HomePage() {
           listType: 'hot',
         },
       ]
-  const [videoList, setVideoList] = useState<VideoItem[]>([])
-  const [activeIndex, setActiveIndex] = useState<number>(0)
-  const [limit, setLimit] = useState<number>(10)
-  const [offset, setOffset] = useState<number>(0)
-  useEffect(() => {
-    const handleScroll = () => {
-      // 计算滚动到底部的条件
-      const { scrollTop, scrollHeight, clientHeight } = document.documentElement
-      if (scrollTop + clientHeight >= scrollHeight - 50) {
-        // 50 是一个缓冲值，可根据需求调整
-        setOffset((prevOffset) => prevOffset + limit)
-      }
-    }
-    // 定义节流函数
-    const throttle = (func: () => void, delay: number) => {
-      let lastCall = 0
-      return function () {
-        const now = new Date().getTime()
-        if (now - lastCall >= delay) {
-          func()
-          lastCall = now
-        }
-      }
-    }
-    const throttledHandleScroll = throttle(handleScroll, 200)
-    // 添加滚动事件监听
-    window.addEventListener('scroll', throttledHandleScroll)
 
-    // 清理函数，组件卸载时移除事件监听
-    return () => {
-      window.removeEventListener('scroll', throttledHandleScroll)
-    }
-  }, [limit, offset]) // 添加offset作为依赖项
-  const fetchRecommendVideoList = () => {
-    getRecommendList(offset, limit)
-      .then((data) => {
-        setLimit(data.limit)
-        setVideoList((prevList) => {
-          return [...prevList, ...data.results]
-        })
-      })
-      .catch((err) => {
-        message.error(err)
-      })
+  const [activeIndex, setActiveIndex] = useState(0)
+  const limit = 10 // 固定的limit值
+  type VideoResponseType = {
+    limit: number
+    offset: number
+    results: VideoItem[]
   }
+
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
+    useInfiniteQuery<
+      VideoResponseType, // 查询函数返回的数据类型
+      Error, // 错误类型
+      VideoResponseType, // 转换后的数据类型（这里与原始数据相同）
+      ['videos', string], // 查询键类型
+      number // 分页参数类型
+    >({
+      queryKey: ['videos', leftList[activeIndex].listType],
+      queryFn: async ({ pageParam = 0 }: { pageParam: number }) => {
+        try {
+          if (leftList[activeIndex].listType === 'recommend') {
+            // 返回的是recommendedResT类型
+            return await getRecommendList(pageParam, limit)
+          } else {
+            // 返回的是hotResT类型
+            return await getHotList(pageParam, limit)
+          }
+        } catch (error) {
+          console.error('加载视频失败:', error)
+          throw error
+        }
+      },
+      getNextPageParam: (lastPage: VideoResponseType): number | undefined => {
+        // 如果返回结果为空或少于limit，说明没有更多数据了
+        if (!lastPage.results || lastPage.results.length === 0) {
+          return undefined // 返回undefined表示没有下一页
+        }
+        // 否则返回下一页的offset
+        return (lastPage.offset || 0) + (lastPage.limit || limit)
+      },
+      // 如果你不想使用缓存，可以设置以下选项
+      staleTime: 0, // 数据立即变为stale
+      cacheTime: 5 * 60 * 1000, // 缓存5分钟
+    })
+
+  // 获取所有视频列表
+  const videoList = data?.pages.flatMap((page) => page.results) || []
+  // const videoList = data.results
+  console.log(data, '???')
+
+  // 处理标签切换
   const handleTabChange = (index: number) => {
     setActiveIndex(index)
-    setVideoList([])
-    setOffset(0)
     window.scrollTo(0, 0)
   }
-  const fetchHotVideoList = () => {
-    getHotList(offset, limit)
-      .then((data) => {
-        setLimit(data.limit)
-        setVideoList((prevList) => {
-          return [...prevList, ...data.results]
-        })
-      })
-      .catch((err) => {
-        message.error(err)
-      })
-  }
 
-  const fetchVideoList = useCallback(() => {
-    if (leftList[activeIndex].listType === 'recommend') {
-      return fetchRecommendVideoList()
-    } else {
-      fetchHotVideoList()
-    }
-  }, [activeIndex])
-  useEffect(() => {
-    fetchVideoList()
-  }, [limit, offset, activeIndex])
+  // 创建一个观察者来检测滚动到底部
+  const observer = useRef<IntersectionObserver | null>(null)
+  const lastVideoElementRef = useCallback(
+    (node: HTMLElement | null) => {
+      if (isFetchingNextPage) return
+
+      if (observer.current) observer.current.disconnect()
+
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasNextPage) {
+          fetchNextPage()
+        }
+      })
+
+      if (node) observer.current.observe(node)
+    },
+    [isFetchingNextPage, fetchNextPage, hasNextPage],
+  )
+
   return (
     <div className="flex flex-col">
       <div className="flex w-full p-3">
@@ -125,96 +127,81 @@ export default function HomePage() {
           ))}
         </ul>
       </div>
-      {/* 下面注释掉的是原先没有用瀑布流的布局，我现在还没想好要不要用瀑布流 */}
+
       <div className="mt-3">
-        <ul className="flex w-full flex-wrap justify-between gap-5">
-          {videoList.map((item, index) => {
-            return (
-              <li
-                key={`${item.url}-${index}`}
-                onClick={() => history.push(`video/${item.url}`)}
-                className="relative mb-3 w-[calc((33.333333%)-1.25rem)] transform cursor-pointer overflow-hidden transition-transform hover:scale-105"
-              >
-                <div className="absolute inset-0 z-10 bg-black bg-opacity-0 transition-opacity group-hover:bg-opacity-30"></div>
-                <div className="flex flex-col">
-                  <div className="mb-2 h-48 w-full overflow-hidden rounded-lg">
-                    <img
-                      className="w-full object-cover"
-                      src={item.cover}
-                      alt={item.description}
-                    />
-                  </div>
+        {status === 'loading' ? (
+          <div className="flex justify-center py-4">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-blue-500"></div>
+          </div>
+        ) : status === 'error' ? (
+          <div className="py-4 text-center text-red-500">加载失败，请重试</div>
+        ) : (
+          <>
+            <ul className="flex w-full flex-wrap justify-between gap-5">
+              {videoList.map((item, index) => {
+                // 为最后一个元素添加ref
+                const isLastElement = index === videoList.length - 1
 
-                  <div className="flex items-center">
-                    <img
-                      src={item.author.avatar}
-                      alt={item.author.username}
-                      className="mr-2 h-8 w-8 rounded-full"
-                    />
-                    <div>
-                      <div className="text-gray-500">{item.description}</div>
-                      <div className="flex items-center text-gray-500">
-                        <span className="mr-2">
-                          {formatPlayCount(item.playCount)}播放
-                        </span>
-                        <span className="mr-2">
-                          {formatDate(item.uploadTime)}
-                        </span>
-                        <span>{item.author.username}</span>
+                return (
+                  <li
+                    key={`${item.url}-${index}`}
+                    ref={isLastElement ? lastVideoElementRef : null}
+                    onClick={() => history.push(`video/${item.url}`)}
+                    className="relative mb-3 w-[calc((33.333333%)-1.25rem)] transform cursor-pointer overflow-hidden transition-transform hover:scale-105"
+                  >
+                    <div className="absolute inset-0 z-10 bg-black bg-opacity-0 transition-opacity group-hover:bg-opacity-30"></div>
+                    <div className="flex flex-col">
+                      <div className="mb-2 h-48 w-full overflow-hidden rounded-lg">
+                        <img
+                          className="w-full object-cover"
+                          src={item.cover}
+                          alt={item.description}
+                        />
+                      </div>
+
+                      <div className="flex items-center">
+                        <img
+                          src={item.author.avatar}
+                          alt={item.author.username}
+                          className="mr-2 h-8 w-8 rounded-full"
+                        />
+                        <div>
+                          <div className="line-clamp-2 text-gray-500">
+                            {item.description}
+                          </div>
+                          <div className="flex items-center text-gray-500">
+                            <span className="mr-2">
+                              {formatPlayCount(item.playCount)}播放
+                            </span>
+                            <span className="mr-2">
+                              {formatDate(item.uploadTime)}
+                            </span>
+                            <span>{item.author.username}</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              </li>
-            )
-          })}
-        </ul>
-      </div>
-      {/* 瀑布流布局 AI生成 */}
-      {/* <div className="mt-3 px-5">
-        <div className="columns-3 gap-5 space-y-5 [column-fill:_balance] sm:columns-1 md:columns-2 lg:columns-3">
-          {videoList.map((item, index) => (
-            <div
-              key={`${item.url}-${index}`}
-              onClick={() => history.push(`video/${item.url}`)}
-              className="transform cursor-pointer break-inside-avoid-column overflow-hidden transition-transform hover:scale-105"
-            >
-              <div className="relative">
-                <div className="absolute inset-0 z-10 bg-black bg-opacity-0 transition-opacity group-hover:bg-opacity-30"></div>
-                <div className="flex flex-col">
-                  <div className="mb-2 w-full overflow-hidden rounded-lg">
-                    <img
-                      src={item.cover}
-                      alt={item.description}
-                      className="h-auto w-full object-cover"
-                    />
-                  </div>
+                  </li>
+                )
+              })}
+            </ul>
 
-                  <div className="flex items-center">
-                    <img
-                      src={item.author.avatar}
-                      alt={item.author.username}
-                      className="mr-2 h-8 w-8 rounded-full object-cover"
-                    />
-                    <div>
-                      <div className="text-gray-500">{item.description}</div>
-                      <div className="flex items-center text-gray-500">
-                        <span className="mr-2">
-                          {formatPlayCount(item.playCount)}播放
-                        </span>
-                        <span className="mr-2">
-                          {formatDate(item.uploadTime)}
-                        </span>
-                        <span>{item.author.username}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+            {/* 加载状态指示器 */}
+            {isFetchingNextPage && (
+              <div className="flex justify-center py-4">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-blue-500"></div>
               </div>
-            </div>
-          ))}
-        </div>
-      </div> */}
+            )}
+
+            {/* 没有更多数据提示 */}
+            {!hasNextPage && videoList.length > 0 && (
+              <div className="py-4 text-center text-gray-500">
+                没有更多视频了
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   )
 }
