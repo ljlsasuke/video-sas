@@ -12,7 +12,7 @@ export const addWatchLater = async (bv: string) => {
 
 export const removeWatchLaterByBV = async (bv: string) => {
   let res = await $delete<any>('/watch-later/cancel_by_video/', {
-    video_url: bv,
+    params: { video_url: bv },
   })
 }
 

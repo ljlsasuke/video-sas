@@ -135,6 +135,9 @@ export default function video() {
     if (videoDetail?.isInWatchLater === undefined) return
     try {
       await toggleWatchLater(videoDetail.url, videoDetail.isInWatchLater)
+      message.success(
+        videoDetail.isInWatchLater ? '从稍后再看移除成功' : '加入稍后再看成功',
+      )
       setVideoDetail(
         produce(videoDetail, (draft) => {
           draft.isInWatchLater = !draft.isInWatchLater
