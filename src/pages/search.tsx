@@ -2,6 +2,7 @@ import message from '@/components/Message'
 import Pagination from '@/components/Pagination'
 import SasIcon from '@/components/SasIcon'
 import { addWatchLater, keywordSearch, tagSearch } from '@/services'
+import { useAuthStore } from '@/store/authStore'
 import type { VideoItem } from '@/type'
 import { formatDate, FormatType } from '@/utils/format'
 import { useQueryClient } from '@tanstack/react-query'
@@ -9,6 +10,7 @@ import { produce } from 'immer'
 import { useEffect, useState } from 'react'
 import { history, useSearchParams } from 'umi'
 export default function search() {
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
   const [searchParams] = useSearchParams()
   const keyword = searchParams.get('keyword')
   const tag = searchParams.get('tag')
@@ -53,6 +55,10 @@ export default function search() {
   // 添加处理按钮点击的函数
   const handleButtonClick = async (e: React.MouseEvent, item: VideoItem) => {
     e.stopPropagation() // 阻止事件冒泡，防止触发父元素的点击事件
+    if (!isLoggedIn) {
+      message.error('请先登录')
+      return
+    }
     try {
       await addWatchLater(item.url)
       message.success('添加稍后再看成功')
@@ -81,6 +87,11 @@ export default function search() {
     <div>
       <header className="mb-6">搜索结果：</header>
       <ul className="flex flex-wrap gap-x-6 gap-y-10">
+        {!videoList.length && (
+          <div className="flex w-full justify-center">
+            <span>搜索结果为空！</span>
+          </div>
+        )}
         {videoList.map((item, index) => (
           <li key={item.url + index} className="w-60">
             <div

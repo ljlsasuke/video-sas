@@ -27,7 +27,6 @@ export default function Register({
     setSelectedTags(newTags)
   }
 
-
   const onRegister = async () => {
     if (password !== confirmPassword) {
       message.error('两次输入的密码不一致！')
@@ -35,6 +34,10 @@ export default function Register({
     }
     if (!username || !password) {
       message.error('用户名和密码不能为空！')
+      return
+    }
+    if (selectedTags.length < 1) {
+      message.error('请至少输入一个标签！')
       return
     }
     // 2. 在调用 register 服务时加入 description
@@ -99,7 +102,7 @@ export default function Register({
         <TagInput
           tags={selectedTags}
           onChange={handleTagsChange}
-          placeholder="输入你感兴趣的标签（可选）"
+          placeholder="输入你感兴趣的标签（请至少输入一个标签）"
         />
 
         {/* 注册按钮和返回登录链接保持不变 */}

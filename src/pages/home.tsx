@@ -1,3 +1,4 @@
+import message from '@/components/Message'
 import SasIcon from '@/components/SasIcon'
 import { addWatchLater, getHotList, getRecommendList } from '@/services'
 import { useAuthStore } from '@/store/authStore'
@@ -123,6 +124,10 @@ export default function HomePage() {
   const handleButtonClick = async (e: React.MouseEvent, item: VideoItem) => {
     e.stopPropagation() // 阻止事件冒泡，防止触发父元素的点击事件
 
+    if (!isLoggedIn) {
+      message.error('请先登录')
+      return
+    }
     try {
       await addWatchLater(item.url)
       queryClient.invalidateQueries({
@@ -132,6 +137,7 @@ export default function HomePage() {
         },
       })
     } catch (error) {
+      message.error(error as string)
     } finally {
       queryClient.setQueryData(
         ['videos', leftList[activeIndex].listType],
@@ -209,7 +215,7 @@ export default function HomePage() {
                         <img
                           src={item.author.avatar}
                           alt={item.author.username}
-                          className="mr-2 h-8 w-8 rounded-full"
+                          className="mr-2 h-8 w-8 rounded-full object-cover"
                         />
                         <div>
                           <div className="line-clamp-2 text-gray-500">
