@@ -88,8 +88,9 @@ export default function search() {
       <header className="mb-6">搜索结果：</header>
       <ul className="flex flex-wrap gap-x-6 gap-y-10">
         {!videoList.length && (
-          <div className="flex w-full justify-center">
-            <span>搜索结果为空！</span>
+          <div className="flex w-full flex-col items-center justify-center">
+            <img src="/nodata.png" alt="nodata" />
+            <span className="text-[#949ba3]">空空如也~</span>
           </div>
         )}
         {videoList.map((item, index) => (
@@ -126,18 +127,20 @@ export default function search() {
           </li>
         ))}
       </ul>
-      <div className="mt-8">
-        <Pagination
-          current={pageNo}
-          total={total}
-          pageSize={defaultPageSize}
-          onChange={(page, pageSize) => {
-            fetchSearchResult(tag, keyword, page)
-          }}
-          showTotal={true}
-          showNumberJump={true}
-        ></Pagination>
-      </div>
+      {!!videoList.length && (
+        <div className="mt-8">
+          <Pagination
+            current={pageNo}
+            total={total}
+            pageSize={defaultPageSize}
+            onChange={(page, pageSize) => {
+              fetchSearchResult(tag, keyword, page)
+            }}
+            showTotal={true}
+            showNumberJump={true}
+          ></Pagination>
+        </div>
+      )}
     </div>
   )
 }
