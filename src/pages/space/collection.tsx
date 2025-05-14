@@ -18,18 +18,8 @@ export default function Collection() {
   }>()
 
   const queryClient = useQueryClient()
-  // 这里的 React Query 出现了一点问题。
-  // 现在我觉得所有个人空间的query都要依赖 userId才合理
-  // todo: 后续对 useCollections 进行修改
   // todo: 而且删除一个投稿之后，也可能造成后端的收藏已经没了但是前端没刷新的问题
-  const Collections = useCollections(
-    pageNo,
-    defaultPageSize,
-    // 如果是当前用户，就不要传递这个id，后端通过token来获取当前用户的收藏列表
-    // todo: 改掉这个逻辑，所有人强制使用userId
-    // 为了和TopNav命中相同缓存
-    isCurrentUser ? undefined : Number(userId),
-  )
+  const Collections = useCollections(Number(userId), pageNo, defaultPageSize)
   useEffect(() => {
     if (!Collections.data?.total) return
     setTotal(Collections.data?.total)
@@ -56,9 +46,9 @@ export default function Collection() {
         const [key, params] = query.queryKey as [string, Record<string, any>]
         if (key !== 'collections') return false
         if (isCurrentUser) {
-          return !('userId' in params)
+          return true
         }
-        return 'userId' in params && params.userId === Number(userId)
+        return params.userId === Number(userId)
       },
     })
   }

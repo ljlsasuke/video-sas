@@ -42,10 +42,10 @@ export default function VideoBar() {
     } else if (item.id === 9) {
     }
   }
-  const Collection = useCollections()
+  const userInfo = useAuthStore((state) => state.userInfo)
+  const Collection = useCollections(userInfo?.id!) //不登录的话就不会显示这个组件的，所以这里断言
   const WatchLater = useWatchLater()
   const WatchHistory = useWatchHistory()
-  const userInfo = useAuthStore((state) => state.userInfo)
   const clearAuthState = useAuthStore((state) => state.clearAuthState)
   // 渲染用户头像弹出内容
   const renderUserPopoverContent = () => (
