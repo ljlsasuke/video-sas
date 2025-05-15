@@ -20,18 +20,26 @@ export default function video() {
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
   const userInfo = useAuthStore((state) => state.userInfo)
   const queryClient = useQueryClient()
-  const fetchVideoDetail = () => {
-    if (!bv) return message.error('未传入BV号！')
-    getVideoDetail(bv)
-      .then((data) => {
-        setVideoDetail(data)
+  const fetchVideoDetail = async () => {
+    if (!bv) {
+      return Promise.reject('未传入视频BV号')
+    }
+    return getVideoDetail(bv).then((data) => {
+      setVideoDetail(data)
+    })
+  }
+  useEffect(() => {
+    fetchVideoDetail()
+      .then(() => {
+        // 让 watchHHistory的query缓存过期
+        if (!isLoggedIn) return
+        queryClient.invalidateQueries({
+          queryKey: ['watchHistory'],
+        })
       })
       .catch((err) => {
         message.error(err)
       })
-  }
-  useEffect(() => {
-    fetchVideoDetail()
   }, [bv, isLoggedIn])
   useEffect(() => {
     if (videoRef.current) {
