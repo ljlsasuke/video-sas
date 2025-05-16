@@ -7,6 +7,7 @@ import useWatchLater from '@/hooks/useWatchLater'
 import { useAuthStore } from '@/store/authStore'
 import type { CollectionItem, WatchHistoryItem, WatchLaterItem } from '@/type'
 import { formatDate, FormatType } from '@/utils/format'
+import { useQueryClient } from '@tanstack/react-query'
 import { history } from 'umi'
 export default function VideoBar() {
   type ListItem = {
@@ -46,7 +47,13 @@ export default function VideoBar() {
   const Collection = useCollections(userInfo?.id!) //不登录的话就不会显示这个组件的，所以这里断言
   const WatchLater = useWatchLater()
   const WatchHistory = useWatchHistory()
+  const queryClient = useQueryClient()
   const clearAuthState = useAuthStore((state) => state.clearAuthState)
+  const onLogout = () => {
+    clearAuthState()
+    queryClient.invalidateQueries()
+    queryClient.clear()
+  }
   // 渲染用户头像弹出内容
   const renderUserPopoverContent = () => (
     <>
@@ -96,7 +103,7 @@ export default function VideoBar() {
         </div>
         <div
           className="flex cursor-pointer items-center gap-2 rounded-md p-2 text-red-500 hover:bg-gray-100"
-          onClick={clearAuthState}
+          onClick={onLogout}
         >
           <SasIcon name="logout" width={18} height={18}></SasIcon>
           <span>退出登录</span>
