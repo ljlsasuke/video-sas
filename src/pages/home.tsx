@@ -4,6 +4,7 @@ import { addWatchLater, getHotList, getRecommendList } from '@/services'
 import { useAuthStore } from '@/store/authStore'
 import type { VideoItem } from '@/type'
 import { formatDate, formatPlayCount } from '@/utils/format'
+import type { InfiniteData } from '@tanstack/react-query'
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
 import { produce } from 'immer'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -55,23 +56,20 @@ export default function HomePage() {
     offset: number
     results: VideoItem[]
   }
-
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
     useInfiniteQuery<
       VideoResponseType, // 查询函数返回的数据类型
       Error, // 错误类型
-      VideoResponseType, // 转换后的数据类型（这里与原始数据相同）
-      ['videos', string], // 查询键类型
+      InfiniteData<VideoResponseType>, // 转换后的数据类型（使用InfiniteData包装）
+      readonly ['videos', string], // 查询键类型
       number // 分页参数类型
     >({
-      queryKey: ['videos', leftList[activeIndex].listType],
+      queryKey: ['videos', leftList[activeIndex].listType] as const,
       queryFn: async ({ pageParam = 0 }: { pageParam: number }) => {
         try {
           if (leftList[activeIndex].listType === 'recommend') {
-            // 返回的是recommendedResT类型
             return await getRecommendList(pageParam, limit)
           } else {
-            // 返回的是hotResT类型
             return await getHotList(pageParam, limit)
           }
         } catch (error) {
@@ -79,21 +77,18 @@ export default function HomePage() {
           throw error
         }
       },
+      initialPageParam: 0, // 添加这一行，指定初始页面参数
       getNextPageParam: (lastPage: VideoResponseType): number | undefined => {
-        // 如果返回结果为空或少于limit，说明没有更多数据了
         if (!lastPage.results || lastPage.results.length === 0) {
-          return undefined // 返回undefined表示没有下一页
+          return undefined
         }
-        // 否则返回下一页的offset
         return (lastPage.offset || 0) + (lastPage.limit || limit)
       },
-      // 如果你不想使用缓存，可以设置以下选项
-      staleTime: 0, // 数据立即变为stale
-      cacheTime: 5 * 60 * 1000, // 缓存5分钟
+      staleTime: 1000 * 60 * 10, // 10分钟
+      gcTime: 1000 * 60 * 10, // 10分钟
     })
 
   // 获取所有视频列表
-  // todo: 这里的类型有点问题，给 useInfiniteQuery 钩子传递的泛型可能不正确，这个组件很多类型问题，都是 useInfiniteQuery 引起的
   const videoList = data?.pages.flatMap((page) => page.results) || []
 
   // 处理标签切换
@@ -139,12 +134,12 @@ export default function HomePage() {
     } catch (error) {
       message.error(error as string)
     } finally {
-      queryClient.setQueryData(
-        ['videos', leftList[activeIndex].listType],
-        produce((draft: any) => {
+      queryClient.setQueryData<InfiniteData<VideoResponseType>>(
+        ['videos', leftList[activeIndex].listType] as const,
+        produce((draft: InfiniteData<VideoResponseType> | undefined) => {
           if (!draft) return draft
 
-          draft.pages.forEach((page: any) => {
+          draft.pages.forEach((page) => {
             page.results.forEach((video: VideoItem) => {
               if (video.url === item.url) {
                 video.hasCollected = true
@@ -172,11 +167,7 @@ export default function HomePage() {
       </div>
 
       <div className="mt-3">
-        {status === 'loading' ? (
-          <div className="flex justify-center py-4">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-blue-500"></div>
-          </div>
-        ) : status === 'error' ? (
+        {status === 'error' ? (
           <div className="py-4 text-center text-red-500">加载失败，请重试</div>
         ) : (
           <>
@@ -189,11 +180,13 @@ export default function HomePage() {
                   <li
                     key={`${item.url}-${index}`}
                     ref={isLastElement ? lastVideoElementRef : null}
-                    onClick={() => history.push(`video/${item.url}`)}
                     className="relative mb-3 w-[calc((33.333333%)-1.25rem)] cursor-pointer overflow-hidden"
                   >
                     <div className="flex flex-col">
-                      <div className="group relative mb-2 h-48 w-full overflow-hidden rounded-lg">
+                      <div
+                        onClick={() => history.push(`video/${item.url}`)}
+                        className="group relative mb-2 h-48 w-full overflow-hidden rounded-lg"
+                      >
                         <img
                           className="w-full object-cover"
                           src={item.cover}
@@ -211,7 +204,10 @@ export default function HomePage() {
                         </div>
                       </div>
 
-                      <div className="flex items-center">
+                      <div
+                        onClick={() => history.push(`space/${item.author.id}`)}
+                        className="flex items-center"
+                      >
                         <img
                           src={item.author.avatar}
                           alt={item.author.username}
