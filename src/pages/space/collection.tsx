@@ -1,17 +1,16 @@
 import Pagination from '@/components/Pagination'
 import Popover from '@/components/Popover'
 import SasIcon from '@/components/SasIcon'
+import QUERY_KEYS from '@/constants/queryKeys'
 import useCollections from '@/hooks/useCollections'
 import { removeCollectionBySelfId } from '@/services'
 import { formatDate, FormatType } from '@/utils/format'
 import { useQueryClient } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { history, useOutletContext } from 'umi'
+const defaultPageSize = 12
 export default function Collection() {
   const [pageNo, setPageNo] = useState(1)
-  const [total, setTotal] = useState(0)
-  const defaultPageSize = 12
-  const [cover, setCover] = useState('/fakerImg.jpg')
   const { userId, isCurrentUser } = useOutletContext<{
     userId: string
     isCurrentUser: boolean
@@ -19,37 +18,30 @@ export default function Collection() {
 
   const queryClient = useQueryClient()
   // todo: 而且删除一个投稿之后，也可能造成后端的收藏已经没了但是前端没刷新的问题
-  const Collections = useCollections(Number(userId), pageNo, defaultPageSize)
-  useEffect(() => {
-    if (!Collections.data?.total) return
-    setTotal(Collections.data?.total)
-  }, [Collections.data?.total])
+  const collectionsQuery = useCollections(
+    Number(userId),
+    pageNo,
+    defaultPageSize,
+  )
 
-  // 新增：只在 pageNo === 1 且有数据时设置封面图片
-  useEffect(() => {
-    if (
-      pageNo === 1 &&
-      Collections.data?.results &&
-      Collections.data?.results?.length > 0 &&
-      Collections.data.results[0]?.video?.cover
-    ) {
-      setCover(Collections.data.results[0].video.cover)
-    }
-  }, [pageNo, Collections.data?.results])
+  const total = collectionsQuery.data?.total ?? 0
+  const collections = collectionsQuery.data?.results ?? []
+  const pageOneQueryKey = QUERY_KEYS.COLLECTIONS(
+    1,
+    defaultPageSize,
+    Number(userId),
+  )
+  // 3. 直接从缓存中获取第一页的数据
+  const pageOneData =
+    queryClient.getQueryData<typeof collectionsQuery.data>(pageOneQueryKey)
+
+  // 4. 无论当前在第几页，都尝试从第一页的缓存数据中派生封面
+  const cover = pageOneData?.results?.[0]?.video?.cover || '/fakerImg.jpg'
 
   const cancelCollect = async (id: number) => {
-    let res = await removeCollectionBySelfId(id)
-    // Collections.refetch()
-    // 使得对应用户的缓存失效（所有pageNo和pageSize）
+    await removeCollectionBySelfId(id)
     queryClient.invalidateQueries({
-      predicate: (query) => {
-        const [key, params] = query.queryKey as [string, Record<string, any>]
-        if (key !== 'collections') return false
-        if (isCurrentUser) {
-          return true
-        }
-        return params.userId === Number(userId)
-      },
+      queryKey: ['collections', { userId: Number(userId) }],
     })
   }
   const videoOptItems = [
@@ -72,9 +64,7 @@ export default function Collection() {
         <div className="flex flex-col justify-between">
           <div>
             <h1 className="text-xl">默认收藏夹</h1>
-            <div className="text-sm text-gray-400">
-              视频数：{Collections?.data?.total}
-            </div>
+            <div className="text-sm text-gray-400">视频数：{total}</div>
           </div>
           <div className="mt-2 flex gap-3 text-sm">
             <button className="rounded-lg bg-primary px-4 py-2 text-white">
@@ -89,7 +79,7 @@ export default function Collection() {
       <div className="my-3 h-[0.5px] bg-[#e3e5e7]"></div>
       <div>
         <ul className="flex flex-wrap gap-4">
-          {Collections?.data?.results.map((collection) => (
+          {collections.map((collection) => (
             <li key={collection.id} className="flex w-48 flex-col">
               <div
                 onClick={() => history.push(`/video/${collection.video.url}`)}
